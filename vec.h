@@ -18,50 +18,51 @@ struct Vec {
 
     inline Vec operator+(const Vec &rhs) const { return Vec(x + rhs.x, y + rhs.y, z + rhs.z); }
     inline Vec operator+(const double &rhs) const { return Vec(x + rhs, y + rhs, z + rhs); }
-
     inline Vec operator-(const Vec &rhs) const { return Vec(x - rhs.x, y - rhs.y, z - rhs.z); }
     inline Vec operator-(const double &rhs) const { return Vec(x - rhs, y - rhs, z - rhs); }
-
     inline Vec operator*(const double rhs) const { return Vec(x * rhs, y * rhs, z * rhs); }
-
     inline Vec operator/(const double rhs) const { return Vec(x / rhs, y / rhs, z / rhs); }
 
     inline bool operator==(const Vec &rhs) const {
         return std::abs(x - rhs.x) < EPS && std::abs(y - rhs.y) < EPS && std::abs(z - rhs.z) < EPS;
     }
-
     inline bool operator!=(const Vec &rhs) const { return !(*this == rhs); }
+    inline bool operator>=(const Vec &rhs) const {
+        return std::abs(x - rhs.x) >= EPS && std::abs(y - rhs.y) >= EPS &&
+               std::abs(z - rhs.z) >= EPS;
+    }
+    inline bool operator>(const Vec &rhs) const { return *this >= rhs && *this != rhs; }
+    inline bool operator<=(const Vec &rhs) const {
+        return std::abs(x - rhs.x) <= EPS && std::abs(y - rhs.y) <= EPS &&
+               std::abs(z - rhs.z) <= EPS;
+    }
+    inline bool operator<(const Vec &rhs) const { return *this <= rhs && *this != rhs; }
 
     inline void operator+=(const Vec &rhs) {
         x += rhs.x;
         y += rhs.y;
         z += rhs.z;
     }
-
     inline void operator+=(const double &rhs) {
         x += rhs;
         y += rhs;
         z += rhs;
     }
-
     inline void operator-=(const Vec &rhs) {
         x -= rhs.x;
         y -= rhs.y;
         z -= rhs.z;
     }
-
     inline void operator-=(const double &rhs) {
         x -= rhs;
         y -= rhs;
         z -= rhs;
     }
-
     inline void operator*=(const double &rhs) {
         x *= rhs;
         y *= rhs;
         z *= rhs;
     }
-
     inline void operator/=(const double &rhs) {
         x /= rhs;
         y /= rhs;

@@ -81,7 +81,8 @@ Color trace_for_debug(const Ray &ray, const std::vector<Object *> objects, const
 }
 
 // レイトレーサー（シーン確認用）
-Color ray_trace(const Ray &ray, const std::vector<Object *> objects, const BVH &bvh) {
+Color ray_trace(const Ray &ray, const std::vector<Object *> objects,
+                const std::vector<Object *> lights, const BVH &bvh) {
     Intersection intersection;
     if (!intersect_objects(ray, objects, bvh, intersection)) {
         return BACKGROUND_COLOR;
@@ -95,29 +96,26 @@ Color ray_trace(const Ray &ray, const std::vector<Object *> objects, const BVH &
     Color color(0.0, 0.0, 0.0);
     Ray shadow_ray;
 
-    for (size_t i = 0; i < objects.size(); i++) {
-        Object *target_emitter_ptr = objects[i];
+    for (const auto &light_ptr : lights) {
         Hitpoint tmp_hp;
-        if (target_emitter_ptr->material.emission != Vec(0.0, 0.0, 0.0)) {
-            const Vec d(target_emitter_ptr->center - hitpoint.position);
-            shadow_ray.org = hitpoint.position + EPS * d;
-            shadow_ray.dir = normalize(d);
-            const double light_dist = norm(d) - EPS;
 
-            for (const size_t idx : bvh.traverse(shadow_ray)) {
-                if (i != idx) {
-                    Object *obj_ptr = objects[idx];
-                    obj_ptr->intersect(shadow_ray, tmp_hp);
-                    if (tmp_hp.distance >= light_dist) {
-                        color +=
-                            target_object_ptr->material.emission +
-                            std::max(dot(normalize(target_emitter_ptr->center - hitpoint.position),
-                                         orienting_normal),
-                                     0.0) *
-                                multiply(target_emitter_ptr->material.emission,
-                                         target_object_ptr->material.color) /
-                                360.0;
-                    }
+        const Vec d(light_ptr->center - hitpoint.position);
+        shadow_ray.org = hitpoint.position + EPS * d;
+        shadow_ray.dir = normalize(d);
+        const double light_dist = norm(d) - EPS;
+
+        for (const size_t idx : bvh.traverse(shadow_ray)) {
+            Object *obj_ptr = objects[idx];
+            if (light_ptr != obj_ptr) {
+                obj_ptr->intersect(shadow_ray, tmp_hp);
+                if (tmp_hp.distance >= light_dist) {
+                    color += target_object_ptr->material.emission +
+                             std::max(dot(normalize(light_ptr->center - hitpoint.position),
+                                          orienting_normal),
+                                      0.0) *
+                                 multiply(light_ptr->material.emission,
+                                          target_object_ptr->material.color) /
+                                 360.0;
                 }
             }
         }
