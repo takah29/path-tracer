@@ -61,7 +61,7 @@ struct BVH {
              });
     }
 
-    void construct_bvh_internal(std::vector<std::pair<int, BBox *>> &bboxes, int node_idx) {
+    void construct_bvh(std::vector<std::pair<int, BBox *>> &bboxes, int node_idx) {
         // 全体を囲うバウンディングボックスを求める
         enclosing_bbox(bboxes, bvh_nodes[node_idx].bbox);
 
@@ -139,8 +139,8 @@ struct BVH {
                                                       bboxes.end());
 
             // 再帰呼出し
-            construct_bvh_internal(left, bvh_nodes[node_idx].child_node_idx.first);
-            construct_bvh_internal(right, bvh_nodes[node_idx].child_node_idx.second);
+            construct_bvh(left, bvh_nodes[node_idx].child_node_idx.first);
+            construct_bvh(right, bvh_nodes[node_idx].child_node_idx.second);
         }
     }
 
@@ -150,7 +150,7 @@ struct BVH {
             id_bboxes[i] = std::make_pair(i, bboxes[i]);
         }
 
-        construct_bvh_internal(id_bboxes, 0);
+        construct_bvh(id_bboxes, 0);
     }
 
     void traverse_bvh(const Ray &ray, std::vector<int> &target_indices, int node_idx) const {
