@@ -7,7 +7,7 @@
  - Diffuse, Specular, Refraction
  - Mesh Rendering
  - Ascii PLY file import
- - BVH (Surface Area Heristic)
+ - BVH (Surface Area Heuristic)
 
 ** Requirements
  - clang 5.0

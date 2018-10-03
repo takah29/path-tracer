@@ -1,9 +1,3 @@
-// TODO: チェッカーテクスチャ
-// TODO: GrossyReflection
-// TODO: IBL
-// TODO: NextEventEstimation
-// TODO: 双方向パストレーシング
-
 #include <map>
 #include <memory>
 #include <random>
@@ -12,7 +6,7 @@
 #include "scene.h"
 #include "tracer.h"
 
-bool build_edupt_scene(Scene& scene);
+bool build_cornelbox(Scene& scene);
 bool build_sphere_plane(Scene& scene);
 bool build_from_plyfile(Scene& scene);
 

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <omp.h>
 #include "camera.h"
 #include "object.h"
 #include "surface.h"
@@ -24,8 +25,6 @@ struct ViewPlane {
 class Scene {
     Camera *camera_ptr;
     std::vector<Object *> objects;
-
-    // tracerクラスを用意して乱数生成器、BVHをもたせる
     BVH bvh;
 
    public:
@@ -58,7 +57,7 @@ class Scene {
         // 空間データ構造の構築
         construct();
 
-#pragma omp parallel for schedule(dynamic, 1) num_threads(8)
+#pragma omp parallel for schedule(dynamic, 1)
         for (int r = 0; r < vp.height_res; r++) {
             std::cout << "processing line " << r << std::endl;
 

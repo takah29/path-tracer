@@ -62,9 +62,6 @@ struct BVH {
     }
 
     void construct_bvh_internal(std::vector<std::pair<int, BBox *>> &bboxes, int node_idx) {
-        // FIXME: vectorの要素をポインタとして持つのは危険
-        //        BvhNode *node_ptr = &bvh_nodes[node_idx];
-
         // 全体を囲うバウンディングボックスを求める
         enclosing_bbox(bboxes, bvh_nodes[node_idx].bbox);
 
