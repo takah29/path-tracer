@@ -49,15 +49,19 @@ struct BVH {
     void axis_decending_sort(std::vector<std::pair<int, BBox *>> &bboxes, const int &axis) {
         sort(bboxes.begin(), bboxes.end(),
              [axis](const std::pair<int, BBox *> &a, const std::pair<int, BBox *> &b) {
+                 bool result;
                  switch (axis) {
                      case 0:
-                         return a.second->center.x > b.second->center.x;
+                         result = a.second->center.x > b.second->center.x;
+                         break;
                      case 1:
-                         return a.second->center.y > b.second->center.y;
+                         result = a.second->center.y > b.second->center.y;
+                         break;
                      case 2:
-                         return a.second->center.z > b.second->center.z;
+                         result = a.second->center.z > b.second->center.z;
+                         break;
                  }
-                 return a.second->center.x > b.second->center.x;
+                 return result;
              });
     }
 
@@ -159,7 +163,8 @@ struct BVH {
                 traverse_bvh(ray, target_indices, bvh_nodes[node_idx].child_node_idx.first);
                 traverse_bvh(ray, target_indices, bvh_nodes[node_idx].child_node_idx.second);
             } else {
-                target_indices.insert(target_indices.end(), bvh_nodes[node_idx].target_indices.begin(),
+                target_indices.insert(target_indices.end(),
+                                      bvh_nodes[node_idx].target_indices.begin(),
                                       bvh_nodes[node_idx].target_indices.end());
             }
         }
