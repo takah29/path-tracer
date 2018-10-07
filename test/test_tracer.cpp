@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE tracer
 #include <boost/test/included/unit_test.hpp>
 
-#include <random>
+#include "../random.h"
 #include "../tracer.h"
 
 using namespace std;
@@ -21,9 +21,9 @@ BOOST_AUTO_TEST_CASE(test_correct_sample_from_hemisphere) {
     Vec w(1.0, 0.0, 0.0);
     auto[u, v] = create_orthonormal_basis(w);
 
-    mt19937 mt;
+    UniformRealGenerator rnd;
 
-    Vec result = sample_from_hemisphere(u, v, w, mt, 0.0);
+    Vec result = sample_from_hemisphere(u, v, w, rnd, 1.0);
 
     BOOST_CHECK(result.x >= -1.0);
     BOOST_CHECK(result.x <= 1.0);

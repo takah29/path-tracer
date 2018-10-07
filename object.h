@@ -88,6 +88,8 @@ struct Object {
     Object(const Vec &center, const BBox &bbox, const Material &material)
         : center(center), bbox(bbox), material(material) {}
 
+    void set_material(const Material &material) { this->material = material; }
+    
     virtual ~Object() {}
 
     virtual bool intersect(const Ray &ray, Hitpoint &hitpoint) const = 0;
@@ -141,8 +143,7 @@ struct Plane : public Object {
     }
 
     Plane(const Vec &center, const Vec &normal, const Material &material)
-        : Object(center,
-                 BBox(Vec(-INF, -EPS, -INF) + center, Vec(INF, EPS, INF) + center),
+        : Object(center, BBox(Vec(-INF, -EPS, -INF) + center, Vec(INF, EPS, INF) + center),
                  material),
           normal(normalize(normal)) {}
 

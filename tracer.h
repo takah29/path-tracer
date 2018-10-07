@@ -13,6 +13,7 @@
 #include "constant.h"
 #include "material.h"
 #include "object.h"
+#include "random.h"
 #include "vec.h"
 
 const Color BACKGROUND_COLOR = BLACK;
@@ -54,12 +55,12 @@ inline std::pair<Vec, Vec> create_orthonormal_basis(const Vec w) {
 }
 
 // 半球面からサンプリングする
-inline Vec sample_from_hemisphere(const Vec &u, const Vec &v, const Vec &w, std::mt19937 &mt,
-                                  const double e) {
-    const double phi = 2 * M_PI * double(mt()) / mt.max();
+inline Vec sample_from_hemisphere(const Vec &u, const Vec &v, const Vec &w,
+                                  UniformRealGenerator &rnd, const double e) {
+    const double phi = 2 * M_PI * rnd();
     const double cos_phi = cos(phi);
     const double sin_phi = sin(phi);
-    const double cos_theta = pow(double(mt()) / mt.max(), 1.0 / (e + 1.0));
+    const double cos_theta = pow(rnd(), 1.0 / (e + 1.0));
     const double sin_theta = sqrt(1.0 - cos_theta * cos_theta);
 
     return sin_theta * cos_phi * u + sin_theta * sin_phi * v + cos_theta * w;
@@ -81,7 +82,8 @@ Color trace_for_debug(const Ray &ray, const std::vector<Object *> objects, const
 }
 
 // レイトレーサー（シーン確認用）
-Color ray_trace(const Ray &ray, const std::vector<Object *> objects, const BVH &bvh) {
+Color ray_trace(const Ray &ray, const std::vector<Object *> objects,
+                const std::vector<Object *> lights, const BVH &bvh) {
     Intersection intersection;
     if (!intersect_objects(ray, objects, bvh, intersection)) {
         return BACKGROUND_COLOR;
@@ -95,29 +97,26 @@ Color ray_trace(const Ray &ray, const std::vector<Object *> objects, const BVH &
     Color color(0.0, 0.0, 0.0);
     Ray shadow_ray;
 
-    for (size_t i = 0; i < objects.size(); i++) {
-        Object *target_emitter_ptr = objects[i];
+    for (const auto &light_ptr : lights) {
         Hitpoint tmp_hp;
-        if (target_emitter_ptr->material.emission != Vec(0.0, 0.0, 0.0)) {
-            const Vec d(target_emitter_ptr->center - hitpoint.position);
-            shadow_ray.org = hitpoint.position + EPS * d;
-            shadow_ray.dir = normalize(d);
-            const double light_dist = norm(d) - EPS;
 
-            for (const size_t idx : bvh.traverse(shadow_ray)) {
-                if (i != idx) {
-                    Object *obj_ptr = objects[idx];
-                    obj_ptr->intersect(shadow_ray, tmp_hp);
-                    if (tmp_hp.distance >= light_dist) {
-                        color +=
-                            target_object_ptr->material.emission +
-                            std::max(dot(normalize(target_emitter_ptr->center - hitpoint.position),
-                                         orienting_normal),
-                                     0.0) *
-                                multiply(target_emitter_ptr->material.emission,
-                                         target_object_ptr->material.color) /
-                                360.0;
-                    }
+        const Vec d(light_ptr->center - hitpoint.position);
+        shadow_ray.org = hitpoint.position + EPS * d;
+        shadow_ray.dir = normalize(d);
+        const double light_dist = norm(d) - EPS;
+
+        for (const size_t idx : bvh.traverse(shadow_ray)) {
+            Object *obj_ptr = objects[idx];
+            if (light_ptr != obj_ptr) {
+                obj_ptr->intersect(shadow_ray, tmp_hp);
+                if (tmp_hp.distance >= light_dist) {
+                    color += target_object_ptr->material.emission +
+                             std::max(dot(normalize(light_ptr->center - hitpoint.position),
+                                          orienting_normal),
+                                      0.0) *
+                                 multiply(light_ptr->material.emission,
+                                          target_object_ptr->material.color) /
+                                 360.0;
                 }
             }
         }
@@ -128,7 +127,7 @@ Color ray_trace(const Ray &ray, const std::vector<Object *> objects, const BVH &
 
 // パストレーサー
 Color path_trace(const Ray &ray, const std::vector<Object *> objects, const BVH &bvh,
-                 std::mt19937 &mt, const int depth) {
+                 UniformRealGenerator &rnd, const int depth) {
     Intersection intersection;
     if (!intersect_objects(ray, objects, bvh, intersection)) {
         return BACKGROUND_COLOR;
@@ -147,7 +146,7 @@ Color path_trace(const Ray &ray, const std::vector<Object *> objects, const BVH 
     }
 
     if (depth > DEPTH) {
-        if (double(mt()) / mt.max() > russian_roulette_probability) {
+        if (rnd() > russian_roulette_probability) {
             return target_object->material.emission;
         }
     } else {
@@ -161,15 +160,15 @@ Color path_trace(const Ray &ray, const std::vector<Object *> objects, const BVH 
         case ReflectionType::DIFFUSE: {
             const Vec &w = orienting_normal;
             auto[u, v] = create_orthonormal_basis(w);
-            Vec dir = sample_from_hemisphere(u, v, w, mt, 1.0);
+            Vec dir = sample_from_hemisphere(u, v, w, rnd, 1.0);
             incoming_radiance =
-                path_trace(Ray(hitpoint.position, dir), objects, bvh, mt, depth + 1);
+                path_trace(Ray(hitpoint.position, dir), objects, bvh, rnd, depth + 1);
             weight = target_object->material.color / russian_roulette_probability;
         } break;
 
         case ReflectionType::SPECULAR: {
             Ray reflection_ray = calc_reflection_ray(ray.dir, hitpoint);
-            incoming_radiance = path_trace(reflection_ray, objects, bvh, mt, depth + 1);
+            incoming_radiance = path_trace(reflection_ray, objects, bvh, rnd, depth + 1);
             weight = target_object->material.color / russian_roulette_probability;
         } break;
 
@@ -183,7 +182,7 @@ Color path_trace(const Ray &ray, const std::vector<Object *> objects, const BVH 
             const double cos2t = 1.0 - n1n2 * n1n2 * (1.0 - ans_dot * ans_dot);
 
             if (cos2t < 0.0) {
-                incoming_radiance = path_trace(reflection_ray, objects, bvh, mt, depth + 1);
+                incoming_radiance = path_trace(reflection_ray, objects, bvh, rnd, depth + 1);
                 weight = target_object->material.color / russian_roulette_probability;
                 break;
             }
@@ -203,20 +202,20 @@ Color path_trace(const Ray &ray, const std::vector<Object *> objects, const BVH 
 
             const double probability = 0.25 + 0.5 * Re;
             if (depth > 2) {
-                if (double(mt()) / mt.max() < probability) {  // 反射
+                if (rnd() < probability) {  // 反射
                     incoming_radiance =
-                        path_trace(reflection_ray, objects, bvh, mt, depth + 1) * Re;
+                        path_trace(reflection_ray, objects, bvh, rnd, depth + 1) * Re;
                     weight = target_object->material.color /
                              (probability * russian_roulette_probability);
                 } else {  // 屈折
                     incoming_radiance =
-                        path_trace(refraction_ray, objects, bvh, mt, depth + 1) * Tr;
+                        path_trace(refraction_ray, objects, bvh, rnd, depth + 1) * Tr;
                     weight = target_object->material.color /
                              ((1.0 - probability) * russian_roulette_probability);
                 }
             } else {  // 屈折と反射の両方を追跡
-                incoming_radiance = path_trace(reflection_ray, objects, bvh, mt, depth + 1) * Re +
-                                    path_trace(refraction_ray, objects, bvh, mt, depth + 1) * Tr;
+                incoming_radiance = path_trace(reflection_ray, objects, bvh, rnd, depth + 1) * Re +
+                                    path_trace(refraction_ray, objects, bvh, rnd, depth + 1) * Tr;
                 weight = target_object->material.color / russian_roulette_probability;
             }
         } break;
