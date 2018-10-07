@@ -7,6 +7,7 @@
 #include <vector>
 #include "camera.h"
 #include "object.h"
+#include "random.h"
 #include "surface.h"
 #include "tracer.h"
 
@@ -64,7 +65,7 @@ class Scene {
         std::vector<Color> img_vector(vp.height_res * vp.width_res, 0.0);
 
         // path-tracing
-        std::mt19937 mt(1);
+        UniformRealGenerator rnd(1);
 
         // ray-tracing or path-tracing with NEE
         std::vector<Object *> lights = get_lights();
@@ -92,7 +93,7 @@ class Scene {
                         Ray ray(camera_ptr->eye, camera_ptr->ray_direction(pp));
 
                         for (int k = 0; k < samples; k++) {
-                            // accumulated_radiance += path_trace(ray, objects, bvh, mt, 0);
+                            // accumulated_radiance += path_trace(ray, objects, bvh, rnd, 0);
                             accumulated_radiance += ray_trace(ray, objects, lights, bvh);
                         }
                         img_vector[idx] +=
