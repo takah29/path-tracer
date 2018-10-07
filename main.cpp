@@ -3,6 +3,7 @@
 #include <random>
 #include <string>
 #include "camera.h"
+#include "loader.h"
 #include "scene.h"
 #include "tracer.h"
 
@@ -11,8 +12,8 @@ bool build_sphere_plane(Scene& scene);
 bool build_from_plyfile(Scene& scene);
 
 int main() {
-    std::map<std::string, std::string> params{{"samples", "4"},
-                                              {"super_samples", "16"},
+    std::map<std::string, std::string> params{{"samples", "1"},
+                                              {"super_samples", "2"},
                                               {"plane_width", "1.0"},
                                               {"width_res", "320"},
                                               {"height_res", "240"}};
@@ -99,10 +100,10 @@ bool build_from_plyfile(Scene& scene) {
     scene.add_object(plane_ptr);
 
     SmoothSurface* surface = new SmoothSurface(materials["refraction"]);
-    if (!surface->from_ply_file("./models/bunny/reconstruction/bun_zipper.ply")) return false;
+    if (!from_ply_file("./models/bunny/reconstruction/bun_zipper.ply", surface)) return false;
     surface->scale(2. / (surface->bbox.corner1.x - surface->bbox.corner0.x));
-    surface->move(Vec(-surface->bbox.center.x, -surface->bbox.corner0.y, -surface->bbox.center.z));
-    Object* surface_ptr = static_cast<Object*>(surface);
+    surface->move(Vec(-surface->bbox.center.x, -surface->bbox.corner0.y,
+    -surface->bbox.center.z)); Object* surface_ptr = static_cast<Object*>(surface);
     scene.add_object(surface_ptr);
 
     // 光源
@@ -113,7 +114,7 @@ bool build_from_plyfile(Scene& scene) {
     scene.add_object(sphere_ptr);
 
     std::mt19937 mt(4);
-    const int n_lights = 100;
+    const int n_lights = 0;
     auto rand = [&mt]() { return double(mt()) / mt.max(); };
     for (int i = 0; i < n_lights; i++) {
         Material material(Color(), Color(6 * rand(), 6 * rand(), 6 * rand()),
