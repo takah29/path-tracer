@@ -39,7 +39,7 @@ class Scene {
     std::vector<Object *> get_lights() {
         std::vector<Object *> lights;
         for (const auto &obj : this->objects) {
-            if (obj->material.emission > Vec(0.0, 0.0, 0.0)) {
+            if (obj->material_ptr->emission > Vec(0.0, 0.0, 0.0)) {
                 lights.push_back(obj);
             }
         }

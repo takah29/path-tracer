@@ -19,8 +19,8 @@ struct Surface : public Object {
     BVH bvh;
 
     Surface() : Object(), vertices(0), triangles(0), triangle_bboxes(0) {}
-    Surface(const Material &material)
-        : Object(Vec(0.0, 0.0, 0.0), BBox(), material),
+    Surface(Material *material_ptr)
+        : Object(Vec(0.0, 0.0, 0.0), BBox(), material_ptr),
           vertices(0),
           triangles(0),
           triangle_bboxes(0) {
@@ -144,7 +144,7 @@ struct FlatSurface : public Surface {
     std::vector<Vec> triangle_normals;
 
     FlatSurface() : Surface(), triangle_normals(0) {}
-    FlatSurface(const Material &material) : Surface(material), triangle_normals(0) {
+    FlatSurface(Material *material_ptr) : Surface(material_ptr), triangle_normals(0) {
         this->bbox.empty();
     }
 
@@ -177,7 +177,7 @@ struct SmoothSurface : public Surface {
     std::vector<Vec> vertex_normals;
 
     SmoothSurface() : Surface(), vertex_normals(0) {}
-    SmoothSurface(const Material &material) : Surface(material), vertex_normals(0) {
+    SmoothSurface(Material *material_ptr) : Surface(material_ptr), vertex_normals(0) {
         this->bbox.empty();
     }
 
