@@ -39,7 +39,7 @@ class Scene {
     std::vector<Object *> get_lights() {
         std::vector<Object *> lights;
         for (const auto &obj : this->objects) {
-            if (obj->material.emission > Vec(0.0, 0.0, 0.0)) {
+            if (obj->material_ptr->emission > Vec(0.0, 0.0, 0.0)) {
                 lights.push_back(obj);
             }
         }
@@ -93,8 +93,8 @@ class Scene {
                         Ray ray(camera_ptr->eye, camera_ptr->ray_direction(pp));
 
                         for (int k = 0; k < samples; k++) {
-                            // accumulated_radiance += path_trace(ray, objects, bvh, rnd, 0);
-                            accumulated_radiance += ray_trace(ray, objects, lights, bvh);
+                            accumulated_radiance += path_trace(ray, objects, bvh, rnd, 0);
+                            //accumulated_radiance += ray_trace(ray, objects, lights, bvh);
                         }
                         img_vector[idx] +=
                             accumulated_radiance / (samples * super_samples * super_samples);

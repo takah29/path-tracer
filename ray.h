@@ -7,7 +7,7 @@
 struct Ray {
     Vec org, dir;
 
-    Ray() {}
+    Ray() : org(), dir() {}
     Ray(const Vec &org, const Vec &dir) : org(org), dir(dir) {}
 };
 
@@ -15,15 +15,16 @@ struct Hitpoint {
     double distance;
     Vec normal;
     Vec position;
+    double u, v;
 
-    Hitpoint() : distance(INF), normal(), position() {}
+    Hitpoint() : distance(INF), normal(), position(), u(0.0), v(0.0) {}
 };
 
 struct Intersection {
     Hitpoint hitpoint;
     int object_id;
 
-    Intersection() : hitpoint(Hitpoint()), object_id(-1) {}
+    Intersection() : hitpoint(), object_id(-1) {}
 };
 
 #endif

@@ -78,18 +78,18 @@ struct BBox {
 struct Object {
     Vec center;
     BBox bbox;
-    Material material;
+    Material *material_ptr;
 
     Object()
         : center(0.0, 0.0, 0.0),
           bbox(Vec(INF, INF, INF), Vec(-INF, -INF, -INF)),
-          material(Color(0.5, 0.5, 0.5), Color(0.0, 0.0, 0.0), ReflectionType::DIFFUSE) {}
+          material_ptr(nullptr) {}
 
-    Object(const Vec &center, const BBox &bbox, const Material &material)
-        : center(center), bbox(bbox), material(material) {}
+    Object(const Vec &center, const BBox &bbox, Material *material_ptr)
+        : center(center), bbox(bbox), material_ptr(material_ptr) {}
 
-    void set_material(const Material &material) { this->material = material; }
-    
+    void set_material(Material *material_ptr) { this->material_ptr = material_ptr; }
+
     virtual ~Object() {}
 
     virtual bool intersect(const Ray &ray, Hitpoint &hitpoint) const = 0;
@@ -103,8 +103,8 @@ struct Sphere : public Object {
         bbox.corner1 = Vec(1.0, 1.0, 1.0) + EPS;
     }
 
-    Sphere(const double radius, const Vec &center, const Material &material)
-        : Object(center, BBox(center - (radius + EPS), center + (radius + EPS)), material),
+    Sphere(const double radius, const Vec &center, Material *material_ptr)
+        : Object(center, BBox(center - (radius + EPS), center + (radius + EPS)), material_ptr),
           radius(radius) {}
 
     ~Sphere() {}
@@ -142,9 +142,9 @@ struct Plane : public Object {
         bbox.corner1 = Vec(INF, EPS, INF);
     }
 
-    Plane(const Vec &center, const Vec &normal, const Material &material)
+    Plane(const Vec &center, const Vec &normal, Material *material_ptr)
         : Object(center, BBox(Vec(-INF, -EPS, -INF) + center, Vec(INF, EPS, INF) + center),
-                 material),
+                 material_ptr),
           normal(normalize(normal)) {}
 
     ~Plane() {}
@@ -173,8 +173,8 @@ struct Box : public Object {
         bbox.corner1 = corner1 + EPS;
     }
 
-    Box(const Vec &corner0, const Vec &corner1, const Material &material)
-        : Object((corner0 + corner1) / 2, BBox(corner0 - EPS, corner1 + EPS), material),
+    Box(const Vec &corner0, const Vec &corner1, Material *material_ptr)
+        : Object((corner0 + corner1) / 2, BBox(corner0 - EPS, corner1 + EPS), material_ptr),
           corner0(corner0),
           corner1(corner1) {
         if (this->corner0.x > this->corner1.x) std::swap(this->corner0.x, this->corner1.x);
@@ -290,14 +290,15 @@ struct Triangle : public Object {
     Vec v0, v1, v2;
     Vec normal;
 
-    Triangle() : v0(0.0, 0.0, 0.0), v1(0.0, 0.0, 1.0), v2(1.0, 0.0, 0.0), normal(0.0, 1.0, 0.0) {
+    Triangle()
+        : Object(), v0(0.0, 0.0, 0.0), v1(0.0, 0.0, 1.0), v2(1.0, 0.0, 0.0), normal(0.0, 1.0, 0.0) {
         bbox.corner0 = min(min(v0, v1), v2) - EPS;
         bbox.corner1 = max(max(v0, v1), v2) + EPS;
     }
 
-    Triangle(const Vec &v0, const Vec &v1, const Vec &v2, const Material &material)
+    Triangle(const Vec &v0, const Vec &v1, const Vec &v2, Material *material_ptr)
         : Object((v0 + v1 + v2) / 3.0, BBox(min(min(v0, v1), v2) - EPS, max(max(v0, v1), v2) + EPS),
-                 material),
+                 material_ptr),
           v0(v0),
           v1(v1),
           v2(v2) {
