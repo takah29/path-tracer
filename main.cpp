@@ -14,15 +14,20 @@ bool build_from_plyfile(Scene& scene);
 
 int main() {
     std::map<std::string, std::string> params{{"samples", "1"},
-                                              {"super_samples", "2"},
+                                              {"super_samples", "32"},
                                               {"plane_width", "1.0"},
-                                              {"width_res", "320"},
-                                              {"height_res", "240"}};
+                                              {"width_res", "620"},
+                                              {"height_res", "440"}};
 
     Scene scene;
     if (!build_from_plyfile(scene)) return 0;
     scene.render(params);
 }
+
+// テクスチャ
+CubicNoise* noise_ptr = new CubicNoise;
+WrappedFBmTexture* fbm_texture = new WrappedFBmTexture(noise_ptr, Color(0.25, 0.25, 0.75), 3.0);
+MarbleTexture* marble_texture = new MarbleTexture(noise_ptr, Color(0.75, 0.7, 0.7), 0.2, 6.0);
 
 // マテリアル情報
 std::map<std::string, Material> materials = {
@@ -46,8 +51,10 @@ std::map<std::string, Material> materials = {
      Material(new ConstantTexture(Color()), Color(5, 5, 5), ReflectionType::DIFFUSE)},
     {"green",
      Material(new ConstantTexture(Color(0.25, 0.75, 0.25)), Color(), ReflectionType::DIFFUSE)},
-    {"checker", Material(new CheckerTexture(Color(1.0, 1.0, 1.0), Color(0.0, 0.0, 0.0)), Color(),
-                         ReflectionType::DIFFUSE)}};
+    {"checker", Material(new CheckerTexture(Color(1.0, 1.0, 1.0), Color(0.3, 0.3, 0.3)), Color(),
+                         ReflectionType::SPECULAR)},
+    {"fbm", Material(fbm_texture, Color(), ReflectionType::DIFFUSE)},
+    {"marble", Material(marble_texture, Color(), ReflectionType::DIFFUSE)}};
 
 // コーネルボックス
 bool build_cornelbox(Scene& scene) {
@@ -108,10 +115,10 @@ bool build_from_plyfile(Scene& scene) {
     Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
     scene.set_camera(pinhole_ptr);
 
-    Object* plane_ptr(new Plane(Vec(0.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), &materials["checker"]));
+    Object* plane_ptr(new Plane(Vec(0.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), &materials["marble"]));
     scene.add_object(plane_ptr);
 
-    SmoothSurface* surface = new SmoothSurface(&materials["refraction"]);
+    SmoothSurface* surface = new SmoothSurface(&materials["gray"]);
     if (!from_ply_file("./models/bunny/reconstruction/bun_zipper.ply", surface)) return false;
     surface->scale(2. / (surface->bbox.corner1.x - surface->bbox.corner0.x));
     surface->move(Vec(-surface->bbox.center.x, -surface->bbox.corner0.y, -surface->bbox.center.z));
@@ -122,8 +129,8 @@ bool build_from_plyfile(Scene& scene) {
     Object* sphere_ptr;
     sphere_ptr = new Sphere(1.0, Vec(-5.2, 5.0, 2.0), &materials["week_light_1"]);
     scene.add_object(sphere_ptr);
-    sphere_ptr = new Sphere(1.0, Vec(5.0, 5.0, 5.0), &materials["week_light_2"]);
-    scene.add_object(sphere_ptr);
+    // sphere_ptr = new Sphere(1.0, Vec(5.0, 5.0, 5.0), &materials["week_light_2"]);
+    // scene.add_object(sphere_ptr);
 
     UniformRealGenerator rnd(4);
     const int n_lights = 0;
