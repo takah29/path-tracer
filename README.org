@@ -16,3 +16,8 @@
 #+BEGIN_SRC bash
 ./run.sh
 #+END_SRC
+
+** Reference
+ - Kevin Suffern, "Ray Tracing from the Ground Up"
+ - https://github.com/githole/edupt
+ - https://qiita.com/omochi64/items/9336f57118ba918f82ec
