@@ -8,17 +8,17 @@
 
 #include "vec.h"
 
-inline double clamp(double x) {
-    if (x > 1.0) {
-        return 1.0;
-    } else if (x < 0.0) {
-        return 0.0;
+inline double clamp(const double x, const double min = 0.0, const double max = 1.0) {
+    if (x > max) {
+        return max;
+    } else if (x < min) {
+        return min;
     } else {
         return x;
     }
 }
 
-inline int to_int(double x) { return static_cast<int>(pow(clamp(x), 1 / 2.2) * 255.0 + 0.5); }
+inline int to_int(const double x) { return static_cast<int>(pow(clamp(x), 1 / 2.2) * 255.0 + 0.5); }
 
 void save_ppm_file(const std::string &filename, const std::vector<Color> &image, const int width,
                    const int height) {
