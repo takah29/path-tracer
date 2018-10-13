@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 #include "utility.h"
 #include "vec.h"
@@ -32,7 +33,7 @@ struct Pinhole : public Camera {
     ~Pinhole() {}
 
     Vec ray_direction(const Point2D& p) const {
-        Vec dir = p.x * u + p.y * v - dist * w;
+        Vec dir = p.first * u + p.second * v - dist * w;
         dir.normalize();
         return dir;
     }

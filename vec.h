@@ -5,11 +5,7 @@
 #include <cmath>
 #include "constant.h"
 
-struct Point2D {
-    double x, y;
-
-    Point2D(const double x = 0.0, const double y = 0.0) : x(x), y(y) {}
-};
+using Point2D = std::pair<double, double>;
 
 struct Vec {
     double x, y, z;

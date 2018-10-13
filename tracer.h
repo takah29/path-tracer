@@ -1,7 +1,9 @@
 #ifndef _TRACER_H_
 #define _TRACER_H_
 
+#define _USE_MATH_DEFINES
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <limits>
 #include <map>
@@ -58,10 +60,10 @@ inline std::pair<Vec, Vec> create_orthonormal_basis(const Vec w) {
 inline Vec sample_from_hemisphere(const Vec &u, const Vec &v, const Vec &w,
                                   UniformRealGenerator &rnd, const double e) {
     const double phi = 2 * M_PI * rnd();
-    const double cos_phi = cos(phi);
-    const double sin_phi = sin(phi);
-    const double cos_theta = pow(rnd(), 1.0 / (e + 1.0));
-    const double sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+    const double cos_phi = std::cos(phi);
+    const double sin_phi = std::sin(phi);
+    const double cos_theta = std::pow(rnd(), 1.0 / (e + 1.0));
+    const double sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);
 
     return sin_theta * cos_phi * u + sin_theta * sin_phi * v + cos_theta * w;
 }
@@ -145,7 +147,7 @@ Color path_trace(const Ray &ray, const std::vector<Object *> objects, const BVH 
         std::max({target_obj_color.x, target_obj_color.y, target_obj_color.z});
 
     if (depth > DEPTH_LIMIT) {
-        russian_roulette_probability *= pow(0.5, depth - DEPTH_LIMIT);
+        russian_roulette_probability *= std::pow(0.5, depth - DEPTH_LIMIT);
     }
 
     if (depth > DEPTH) {
@@ -192,15 +194,15 @@ Color path_trace(const Ray &ray, const std::vector<Object *> objects, const BVH 
 
             const Ray refraction_ray(
                 hitpoint.position,
-                normalize(ray.dir * n1n2 -
-                          hitpoint.normal * (into ? 1.0 : -1.0) * (ans_dot * n1n2 + sqrt(cos2t))));
+                normalize(ray.dir * n1n2 - hitpoint.normal * (into ? 1.0 : -1.0) *
+                                               (ans_dot * n1n2 + std::sqrt(cos2t))));
 
             const double a = n2 - n1, b = n2 + n1;
             const double R0 = (a * a) / (b * b);
             const double c =
                 1.0 - (into ? -ans_dot : dot(refraction_ray.dir, -1.0 * orienting_normal));
-            const double Re = R0 + (1.0 - R0) * pow(c, 5.0);
-            const double n1n2_2 = pow(n1n2, 2.0);
+            const double Re = R0 + (1.0 - R0) * std::pow(c, 5.0);
+            const double n1n2_2 = std::pow(n1n2, 2.0);
             const double Tr = (1.0 - Re) * n1n2_2;
 
             const double probability = 0.25 + 0.5 * Re;
