@@ -8,6 +8,18 @@
 
 #include "vec.h"
 
+struct Image {
+    int width_res, height_res;
+    std::vector<Color> data;
+
+    Image(const int &width_res, const int &height_res)
+        : width_res(width_res), height_res(height_res), data(height_res * width_res) {}
+
+    inline Color get_color(const int &row, const int &column) const {
+        return data[row * height_res + column];
+    }
+};
+
 inline double clamp(const double x, const double min = 0.0, const double max = 1.0) {
     if (x > max) {
         return max;

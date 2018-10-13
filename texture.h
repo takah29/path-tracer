@@ -3,12 +3,15 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <tuple>
 #include "lattice_noise.h"
+#include "mapping.h"
 #include "ray.h"
+#include "utility.h"
 #include "vec.h"
 
 struct Texture {
-    virtual Color value(const Hitpoint &hitpoint) const = 0;
+    virtual Color get_value(const Hitpoint &hitpoint) const = 0;
 };
 
 struct ConstantTexture : public Texture {
@@ -17,7 +20,32 @@ struct ConstantTexture : public Texture {
     ConstantTexture() : color(0.5, 0.5, 0.5) {}
     ConstantTexture(const Color &color) : color(color) {}
 
-    Color value(const Hitpoint &hitpoint) const { return color; }
+    Color get_value(const Hitpoint &hitpoint) const { return color; }
+};
+
+struct ImageTexture : public Texture {
+    Image *image_ptr;
+    Mapping *mapping_ptr;
+
+    ImageTexture() : image_ptr(nullptr), mapping_ptr(nullptr) {}
+    ImageTexture(Image *image_ptr, Mapping *mapping_ptr)
+        : image_ptr(image_ptr), mapping_ptr(mapping_ptr) {}
+
+    void set_image(Image *image_ptr) { this->image_ptr = image_ptr; }
+    void set_mapping(Mapping *mapping_ptr) { this->mapping_ptr = mapping_ptr; }
+
+    virtual Color get_value(const Hitpoint &hitpoint) const {
+        int row, column;
+        if (mapping_ptr) {
+            std::tie(row, column) = mapping_ptr->get_texel_coordinates(
+                hitpoint, image_ptr->width_res, image_ptr->height_res);
+        } else {
+            row = static_cast<int>((1.0 - hitpoint.v) * (image_ptr->height_res - 1));
+            column = static_cast<int>(hitpoint.u * (image_ptr->width_res - 1));
+        }
+
+        return image_ptr->get_color(row, column);
+    }
 };
 
 struct CheckerTexture : public Texture {
@@ -28,7 +56,7 @@ struct CheckerTexture : public Texture {
     CheckerTexture(const Color &color1, const Color &color2, const double size = 1.0)
         : color1(color1), color2(color2), size(size) {}
 
-    Color value(const Hitpoint &hitpoint) const {
+    Color get_value(const Hitpoint &hitpoint) const {
         auto[x, y, z] = hitpoint.position;
         const double v = std::sin(M_PI * x / size + EPS) * std::sin(M_PI * y / size + EPS) *
                          std::sin(M_PI * z / size + EPS);
@@ -53,7 +81,7 @@ struct FBmTexture : public Texture {
 
     void set_noise_ptr(LatticeNoise *noise_ptr) { this->noise_ptr = noise_ptr; }
 
-    Color value(const Hitpoint &hitpoint) const {
+    Color get_value(const Hitpoint &hitpoint) const {
         double v = noise_ptr->value_fBm(hitpoint.position);
         v = min_value + (max_value - min_value) * v;
 
@@ -72,7 +100,7 @@ struct WrappedFBmTexture : public Texture {
 
     void set_noise_ptr(LatticeNoise *noise_ptr) { this->noise_ptr = noise_ptr; }
 
-    Color value(const Hitpoint &hitpoint) const {
+    Color get_value(const Hitpoint &hitpoint) const {
         double noise = expansion_number * noise_ptr->value_fBm(hitpoint.position);
         double v = noise - floor(noise);
 
@@ -92,7 +120,7 @@ struct MarbleTexture : public Texture {
 
     void set_noise_ptr(LatticeNoise *noise_ptr) { this->noise_ptr = noise_ptr; }
 
-    Color value(const Hitpoint &hitpoint) const {
+    Color get_value(const Hitpoint &hitpoint) const {
         double v = 1.0 + std::sin((hitpoint.position.x +
                                    range * noise_ptr->value_turbulence(hitpoint.position)) /
                                   size);

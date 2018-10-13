@@ -80,7 +80,7 @@ Color trace_for_debug(const Ray &ray, const std::vector<Object *> objects, const
         return BACKGROUND_COLOR;
     }
 
-    return objects[intersection.object_id]->material_ptr->color_ptr->value(intersection.hitpoint);
+    return objects[intersection.object_id]->material_ptr->color_ptr->get_value(intersection.hitpoint);
 }
 
 // レイトレーサー（シーン確認用）
@@ -95,7 +95,7 @@ Color ray_trace(const Ray &ray, const std::vector<Object *> objects,
     const Hitpoint &hitpoint = intersection.hitpoint;
     const Vec orienting_normal =
         dot(hitpoint.normal, ray.dir) < 0.0 ? hitpoint.normal : (-1.0 * hitpoint.normal);
-    const Color &target_obj_color = target_object_ptr->material_ptr->color_ptr->value(hitpoint);
+    const Color &target_obj_color = target_object_ptr->material_ptr->color_ptr->get_value(hitpoint);
     const Color &target_obj_emission = target_object_ptr->material_ptr->emission;
 
     Color color(0.0, 0.0, 0.0);
@@ -140,7 +140,7 @@ Color path_trace(const Ray &ray, const std::vector<Object *> objects, const BVH 
     const Hitpoint &hitpoint = intersection.hitpoint;
     const Vec orienting_normal =
         dot(hitpoint.normal, ray.dir) < 0.0 ? hitpoint.normal : (-1.0 * hitpoint.normal);
-    const Color &target_obj_color = target_object->material_ptr->color_ptr->value(hitpoint);
+    const Color &target_obj_color = target_object->material_ptr->color_ptr->get_value(hitpoint);
     const Color &target_obj_emission = target_object->material_ptr->emission;
 
     double russian_roulette_probability =
