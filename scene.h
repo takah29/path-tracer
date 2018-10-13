@@ -75,7 +75,7 @@ class Scene {
 
 #pragma omp parallel for schedule(dynamic, 1)
         for (int r = 0; r < vp.height_res; r++) {
-            if (r % 10) {
+            if (r % 10 == 0) {
                 std::cout << "processing line " << r << std::endl;
             }
 
@@ -94,7 +94,7 @@ class Scene {
 
                         for (int k = 0; k < samples; k++) {
                             accumulated_radiance += path_trace(ray, objects, bvh, rnd, 0);
-                            //accumulated_radiance += ray_trace(ray, objects, lights, bvh);
+                            // accumulated_radiance += ray_trace(ray, objects, lights, bvh);
                         }
                         img_vector[idx] +=
                             accumulated_radiance / (samples * super_samples * super_samples);
