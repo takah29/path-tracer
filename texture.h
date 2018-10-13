@@ -1,6 +1,8 @@
 #ifndef _TEXTURE_H_
 #define _TEXTURE_H_
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "lattice_noise.h"
 #include "ray.h"
 #include "vec.h"
@@ -28,8 +30,8 @@ struct CheckerTexture : public Texture {
 
     Color value(const Hitpoint &hitpoint) const {
         auto[x, y, z] = hitpoint.position;
-        const double v =
-            sin(M_PI * x / size + EPS) * sin(M_PI * y / size + EPS) * sin(M_PI * z / size + EPS);
+        const double v = std::sin(M_PI * x / size + EPS) * std::sin(M_PI * y / size + EPS) *
+                         std::sin(M_PI * z / size + EPS);
 
         if (v < 0.0) {
             return color1;
@@ -91,10 +93,9 @@ struct MarbleTexture : public Texture {
     void set_noise_ptr(LatticeNoise *noise_ptr) { this->noise_ptr = noise_ptr; }
 
     Color value(const Hitpoint &hitpoint) const {
-        double v =
-            1.0 +
-            sin((hitpoint.position.x + range * noise_ptr->value_turbulence(hitpoint.position)) /
-                size);
+        double v = 1.0 + std::sin((hitpoint.position.x +
+                                   range * noise_ptr->value_turbulence(hitpoint.position)) /
+                                  size);
 
         return v * color;
     }
