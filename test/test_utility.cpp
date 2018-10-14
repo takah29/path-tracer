@@ -22,24 +22,29 @@ BOOST_AUTO_TEST_CASE(test_correct_to_int) {
     BOOST_CHECK_EQUAL(to_int(1.1), 255);
 }
 
-BOOST_AUTO_TEST_CASE(test_correct_save_ppm) {
+BOOST_AUTO_TEST_CASE(test_correct_save_and_load_ppm_file) {
+    // save ppm file
     std::string filename = "test_image.ppm";
-    int width = 4, height = 3;
+    int width_res = 4, height_res = 3;
     Color c = Color(1.0, 1.0, 1.0);
-    std::vector<Color> image(width * height, c);
-    save_ppm_file(filename, image, width, height);
+    Image image(width_res, height_res);
 
-    std::ifstream infile(filename);
-    std::string line;
-    getline(infile, line);
-    BOOST_CHECK_EQUAL(line, "P3");
-    getline(infile, line);
-    BOOST_CHECK_EQUAL(line, "4 3");
-    getline(infile, line);
-    BOOST_CHECK_EQUAL(line, "255");
-    for (int i = 0; i < width * height; i++) {
-        getline(infile, line);
-        BOOST_CHECK_EQUAL(line, "255 255 255");
+    for (int i = 0; i < image.height_res; i++) {
+        for (int j = 0; j < image.width_res; j++) {
+            image.set_color(c, i, j);
+        }
+    }
+    save_ppm_file(filename, image);
+
+    // load ppm file
+    Image load_image = load_ppm_file(filename);
+
+    BOOST_CHECK_EQUAL(load_image.width_res, 4);
+    BOOST_CHECK_EQUAL(load_image.height_res, 3);
+    for (int i = 0; i < load_image.height_res; i++) {
+        for (int j = 0; j < load_image.width_res; j++) {
+            BOOST_CHECK(load_image.get_color(i, j) == Color(1.0, 1.0, 1.0));
+        }
     }
 }
 
