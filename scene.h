@@ -62,7 +62,7 @@ class Scene {
         const ViewPlane vp(std::stoi(params.at("plane_width")), std::stoi(params.at("width_res")),
                            std::stoi(params.at("height_res")));
 
-        std::vector<Color> img_vector(vp.height_res * vp.width_res, 0.0);
+        Image img(vp.width_res, vp.height_res);
 
         // path-tracing
         UniformRealGenerator rnd(1);
@@ -96,13 +96,13 @@ class Scene {
                             accumulated_radiance += path_trace(ray, objects, bvh, rnd, 0);
                             //accumulated_radiance += ray_trace(ray, objects, lights, bvh);
                         }
-                        img_vector[idx] +=
+                        img.data[idx] +=
                             accumulated_radiance / (samples * super_samples * super_samples);
                     }
                 }
             }
         }
-        save_ppm_file("result.ppm", img_vector, vp.width_res, vp.height_res);
+        save_ppm_file("result.ppm", img);
     }
 };
 

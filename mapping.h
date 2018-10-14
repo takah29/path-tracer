@@ -8,7 +8,7 @@
 #include "vec.h"
 
 struct Mapping {
-    virtual Point2D get_uv_values(const Vec v) const = 0;
+    virtual Point2D get_uv_values(const Vec &v) const = 0;
 
     inline std::pair<int, int> get_texel_coordinates(const Hitpoint &hitpoint, const int width_res,
                                                      const int height_res) {
@@ -20,8 +20,8 @@ struct Mapping {
 };
 
 struct SphericalMap : public Mapping {
-    Point2D get_uv_values(const Vec local_hitpoint) const {
-        const auto & [ x, y, z ] = local_hitpoint;
+    Point2D get_uv_values(const Vec &local_hitpoint) const {
+        auto[x, y, z] = local_hitpoint;
         double theta = std::acos(y);
         double phi = std::atan2(x, z);
 
