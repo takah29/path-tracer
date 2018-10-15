@@ -80,7 +80,8 @@ Color trace_for_debug(const Ray &ray, const std::vector<Object *> objects, const
         return BACKGROUND_COLOR;
     }
 
-    return objects[intersection.object_id]->material_ptr->color_ptr->get_value(intersection.hitpoint);
+    return objects[intersection.object_id]->material_ptr->color_ptr->get_value(
+        intersection.hitpoint);
 }
 
 // レイトレーサー（シーン確認用）
@@ -100,28 +101,30 @@ Color ray_trace(const Ray &ray, const std::vector<Object *> objects,
 
     Color color(0.0, 0.0, 0.0);
     Ray shadow_ray;
-
+    Hitpoint tmp_hp;
     for (const auto &light_ptr : lights) {
-        Hitpoint tmp_hp;
-
         const Vec d(light_ptr->center - hitpoint.position);
         shadow_ray.org = hitpoint.position + EPS * d;
         shadow_ray.dir = normalize(d);
         const double light_dist = norm(d) - EPS;
+        double t = INF;
 
         for (const size_t idx : bvh.traverse(shadow_ray)) {
             Object *obj_ptr = objects[idx];
             if (light_ptr != obj_ptr) {
                 obj_ptr->intersect(shadow_ray, tmp_hp);
-                const Color &light_emission = light_ptr->material_ptr->emission;
-                if (tmp_hp.distance >= light_dist) {
-                    color += target_obj_emission +
-                             std::max(dot(normalize(light_ptr->center - hitpoint.position),
-                                          orienting_normal),
-                                      0.0) *
-                                 multiply(light_emission, target_obj_color) / 360.0;
+
+                if (tmp_hp.distance < t) {
+                    t = tmp_hp.distance;
                 }
             }
+        }
+        if (t >= light_dist) {
+            color +=
+                target_obj_emission +
+                std::max(dot(normalize(light_ptr->center - hitpoint.position), orienting_normal),
+                         0.0) *
+                    multiply(light_ptr->material_ptr->emission, target_obj_color) / 360.0;
         }
     }
     color += target_obj_color * AMBIENT_COEF;
