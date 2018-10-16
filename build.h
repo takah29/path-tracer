@@ -11,7 +11,7 @@
 // Texture
 CubicNoise* noise_ptr = new CubicNoise;
 WrappedFBmTexture* fbm_texture = new WrappedFBmTexture(noise_ptr, Color(0.25, 0.25, 0.75), 3.0);
-MarbleTexture* marble_texture = new MarbleTexture(noise_ptr, Color(0.75, 0.7, 0.7), 0.2, 6.0);
+MarbleTexture* marble_texture = new MarbleTexture(noise_ptr, Color(0.75, 0.7, 0.7), 0.2, 2.0);
 
 // Material info
 std::map<std::string, Material> materials = {
@@ -84,11 +84,17 @@ bool build_2(Scene& scene) {
     Object* box_ptr(new Box(Vec(-1.0, 2.0, -1.0), Vec(1.0, 0.0, 1.0), &materials["green"]));
     scene.add_object(box_ptr);
 
-    Object* sphere_ptr(new Sphere(1.0, Vec(0.0, 3.0, 0.0), &materials["specular"]));
+    Image* image = load_ppm_P3_file_("images/result.ppm");
+    SphericalMap* mapping = new SphericalMap();
+    // ImageTexture* image_texture = new ImageTexture(image, mapping);
+    Material* material_earth =
+        new Material(new ImageTexture(image, mapping), Color(), ReflectionType::DIFFUSE);
+
+    Object* sphere_ptr(new Sphere(1.0, Vec(0.0, 3.0, 0.0), material_earth));
     scene.add_object(sphere_ptr);
 
     // Light source
-    sphere_ptr = new Sphere(1.0, Vec(5.0, 5.0, 0.0), &materials["week_light"]);
+    sphere_ptr = new Sphere(1.0, Vec(5.0, 5.0, 0.0), &materials["week_light_1"]);
     scene.add_object(sphere_ptr);
 
     return true;
@@ -100,7 +106,7 @@ bool build_3(Scene& scene) {
     Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
     scene.set_camera(pinhole_ptr);
 
-    Object* plane_ptr(new Plane(Vec(0.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), &materials["marble"]));
+    Object* plane_ptr(new Plane(Vec(0.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), &materials["green"]));
     scene.add_object(plane_ptr);
 
     SmoothSurface* surface = new SmoothSurface(&materials["gray"]);
@@ -114,16 +120,17 @@ bool build_3(Scene& scene) {
     Object* sphere_ptr;
     sphere_ptr = new Sphere(1.0, Vec(-5.2, 5.0, 2.0), &materials["week_light_1"]);
     scene.add_object(sphere_ptr);
-    // sphere_ptr = new Sphere(1.0, Vec(5.0, 5.0, 5.0), &materials["week_light_2"]);
-    // scene.add_object(sphere_ptr);
+    sphere_ptr = new Sphere(1.0, Vec(5.0, 5.0, 5.0), &materials["week_light_2"]);
+    scene.add_object(sphere_ptr);
 
     UniformRealGenerator rnd(4);
-    const int n_lights = 0;
+    const int n_lights = 10;
     for (int i = 0; i < n_lights; i++) {
-        Material material(new ConstantTexture(Color()), Color(6 * rnd(), 6 * rnd(), 6 * rnd()),
-                          ReflectionType::DIFFUSE);
+        Material* material =
+            new Material(new ConstantTexture(Color()), Color(6 * rnd(), 6 * rnd(), 6 * rnd()),
+                         ReflectionType::DIFFUSE);
         sphere_ptr =
-            new Sphere(0.1, Vec(10.0 * rnd() - 5., 10.0 * rnd(), 10.0 * rnd() - 5.), &material);
+            new Sphere(0.1, Vec(10.0 * rnd() - 5., 10.0 * rnd(), 10.0 * rnd() - 5.), material);
         scene.add_object(sphere_ptr);
     }
 

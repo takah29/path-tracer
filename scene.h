@@ -64,10 +64,10 @@ class Scene {
 
         Image img(vp.width_res, vp.height_res);
 
-        // path-tracing
+        // for path-tracing
         UniformRealGenerator rnd(1);
 
-        // ray-tracing or path-tracing with NEE
+        // for ray-tracing or path-tracing with NEE
         std::vector<Object *> lights = get_lights();
 
         // 空間データ構造の構築
@@ -93,8 +93,8 @@ class Scene {
                         Ray ray(camera_ptr->eye, camera_ptr->ray_direction(pp));
 
                         for (int k = 0; k < samples; k++) {
-                            accumulated_radiance += path_trace(ray, objects, bvh, rnd, 0);
-                            // accumulated_radiance += ray_trace(ray, objects, lights, bvh);
+                            // accumulated_radiance += path_trace(ray, objects, bvh, rnd, 0);
+                            accumulated_radiance += ray_trace(ray, objects, lights, bvh);
                         }
                         img.data[idx] +=
                             accumulated_radiance / (samples * super_samples * super_samples);
