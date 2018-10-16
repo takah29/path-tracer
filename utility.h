@@ -8,6 +8,26 @@
 
 #include "vec.h"
 
+// debug用print関数
+template <class... A>
+void print() {
+    std::cout << std::endl;
+}
+template <class... A>
+void prints_rest() {
+    std::cout << std::endl;
+}
+template <class T, class... A>
+void prints_rest(const T &first, const A &... rest) {
+    std::cout << ", " << first;
+    prints_rest(rest...);
+}
+template <class T, class... A>
+void print(const T &first, const A &... rest) {
+    std::cout << first;
+    prints_rest(rest...);
+}
+
 struct Image {
     int width_res, height_res;
     std::vector<Color> data;
