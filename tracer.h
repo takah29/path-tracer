@@ -124,7 +124,7 @@ Color ray_trace(const Ray &ray, const std::vector<Object *> objects,
                 target_obj_emission +
                 std::max(dot(normalize(light_ptr->center - hitpoint.position), orienting_normal),
                          0.0) *
-                    multiply(light_ptr->material_ptr->emission, target_obj_color) / 360.0;
+                    multiply(light_ptr->material_ptr->emission, target_obj_color) / 36.0;
         }
     }
     color += target_obj_color * AMBIENT_COEF;
