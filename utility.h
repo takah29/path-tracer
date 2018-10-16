@@ -16,10 +16,10 @@ struct Image {
         : width_res(width_res), height_res(height_res), data(height_res * width_res) {}
 
     inline Color get_color(const int &row, const int &column) const {
-        return data[row * height_res + column];
+        return data[row * width_res + column];
     }
     inline void set_color(const Color &color, const int &row, const int &column) {
-        data[row * height_res + column] = color;
+        data[row * width_res + column] = color;
     }
 };
 
@@ -53,13 +53,13 @@ inline double clamp(const double x, const double min = 0.0, const double max = 1
 
 inline int to_int(const double x) { return static_cast<int>(pow(clamp(x), 1 / 2.2) * 255.0 + 0.5); }
 
-Image load_ppm_file(const std::string &filename) {
+Image load_ppm_P3_file(const std::string &filename) {
     std::ifstream infile(filename);
     std::string line;
 
     getline(infile, line);
     if (line != "P3") {
-        printf("Error: Expected file type is P3.");
+        printf("Error: Expected file type is P3.\n");
         exit(1);
     }
 
@@ -76,6 +76,98 @@ Image load_ppm_file(const std::string &filename) {
             image.set_color(Color(r / max_value, g / max_value, b / max_value), i, j);
         }
     }
+
+    return image;
+}
+
+Image *load_ppm_P3_file_(const std::string &filename) {
+    std::ifstream infile(filename);
+    std::string line;
+
+    getline(infile, line);
+    if (line != "P3") {
+        printf("Error: Expected file type is P3.\n");
+        exit(1);
+    }
+
+    int width_res, height_res;
+    infile >> width_res >> height_res;
+    double max_value;
+    infile >> max_value;
+
+    Image *image = new Image(width_res, height_res);
+    int r, g, b;
+    for (int i = 0; i < height_res; i++) {
+        for (int j = 0; j < width_res; j++) {
+            infile >> r >> g >> b;
+            image->set_color(Color(r / max_value, g / max_value, b / max_value), i, j);
+        }
+    }
+
+    return image;
+}
+
+Image load_ppm_P6_file(const std::string &filename) {
+    std::ifstream infile(filename, std::ios_base::in | std::ios_base::binary);
+    std::string line;
+
+    getline(infile, line);
+    // printf("%s", line.c_str());
+    if (line != "P6") {
+        printf("Error: Expected file type is P3.\n");
+        exit(1);
+    }
+
+    int width_res, height_res;
+    infile >> width_res >> height_res;
+    printf("%d\n", width_res);
+    int max_value;
+    infile >> max_value;
+    printf("%d\n", max_value);
+
+    Image image(width_res, height_res);
+    char r, g, b;
+    for (int i = 0; i < height_res; i++) {
+        for (int j = 0; j < width_res; j++) {
+            infile.read((char *)&r, 1);
+            infile.read((char *)&g, 1);
+            infile.read((char *)&b, 1);
+            image.set_color(
+                Color((double)r / max_value, (double)g / max_value, (double)b / max_value), i, j);
+        }
+    }
+
+    return image;
+}
+
+Image *load_ppm_P6_file_(const std::string &filename) {
+    std::ifstream infile(filename, std::ios_base::in | std::ios_base::binary);
+    std::string line;
+
+    getline(infile, line);
+    if (line != "P6") {
+        printf("Error: Expected file type is P6.\n");
+        exit(1);
+    }
+
+    int width_res, height_res;
+    infile >> width_res >> height_res;
+    double max_value;
+    infile >> max_value;
+
+    Image *image = new Image(width_res, height_res);
+    printf("%d\n", int(image->data.size()));
+    char r, g, b;
+    for (int i = 0; i < height_res; i++) {
+        for (int j = 0; j < width_res; j++) {
+            infile.read((char *)&r, 1);
+            infile.read((char *)&g, 1);
+            infile.read((char *)&b, 1);
+            image->set_color(
+                Color((double)r / max_value, (double)g / max_value, (double)b / max_value), i, j);
+        }
+    }
+    for (Color x : image->data) printf("%f ", x.y);
 
     return image;
 }
