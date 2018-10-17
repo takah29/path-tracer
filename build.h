@@ -78,7 +78,7 @@ bool build_2(Scene& scene) {
     Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
     scene.set_camera(pinhole_ptr);
 
-    Object* plane_ptr(new Plane(Vec(0.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), &materials["red"]));
+    Object* plane_ptr(new Plane(Vec(0.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), &materials["marble"]));
     scene.add_object(plane_ptr);
 
     Object* box_ptr(new Box(Vec(-1.0, 2.0, -1.0), Vec(1.0, 0.0, 1.0), &materials["green"]));
