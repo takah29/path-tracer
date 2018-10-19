@@ -30,23 +30,33 @@ void print(const T &first, const A &... rest) {
 
 struct Image {
     int width_res, height_res;
-    std::vector<Color> data;
+    std::vector<Color> color_vec;
 
-    Image() : width_res(-1), height_res(-1), data(0) {}
+    Image() : width_res(-1), height_res(-1), color_vec(0) {}
     Image(const int &width_res, const int &height_res)
-        : width_res(width_res), height_res(height_res), data(height_res * width_res) {}
+        : width_res(width_res), height_res(height_res), color_vec(height_res * width_res) {}
 
     inline void set_image_size(const int &width_res, const int &height_res) {
         this->width_res = width_res;
         this->height_res = height_res;
-        this->data.resize(width_res * height_res);
+        this->color_vec.resize(width_res * height_res);
+    }
+
+    void flip() {
+        std::vector<Color> tmp_color_vec(width_res * height_res);
+        for (int i = 0; i < height_res; i++) {
+            for (int j = 0; j < width_res; j++) {
+                tmp_color_vec[i * width_res + j] = color_vec[i * width_res + (width_res - 1 - j)];
+            }
+        }
+        color_vec = tmp_color_vec;
     }
 
     inline Color get_color(const int &row, const int &column) const {
-        return data[row * width_res + column];
+        return color_vec[row * width_res + column];
     }
     inline void set_color(const Color &color, const int &row, const int &column) {
-        data[row * width_res + column] = color;
+        color_vec[row * width_res + column] = color;
     }
 };
 
