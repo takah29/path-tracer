@@ -69,11 +69,13 @@ bool load_hdr_image(const std::string filename, Image &image) {
         return false;
     }
 
-    for (int i = 0; i < 5; i++) {
+    while (true) {
         getline_for_binary(infile, line);
+        if (line[0] == 0x0a) break;
     }
 
     // 画像サイズ取得
+    getline_for_binary(infile, line);
     int width_res, height_res;
     if (!sscanf(line.data(), "-Y %d +X %d", &height_res, &width_res)) {
         infile.close();
