@@ -37,13 +37,13 @@ BOOST_AUTO_TEST_CASE(test_correct_save_and_load_ppm_file) {
     save_ppm_file(filename, image);
 
     // load ppm file
-    Image load_image = load_ppm_file(filename);
+    Image load_image = load_ascii_ppm_file(filename);
 
-    BOOST_CHECK_EQUAL(load_image.width_res, 4);
-    BOOST_CHECK_EQUAL(load_image.height_res, 3);
+    BOOST_CHECK_EQUAL(load_image.width_res, width_res);
+    BOOST_CHECK_EQUAL(load_image.height_res, height_res);
     for (int i = 0; i < load_image.height_res; i++) {
         for (int j = 0; j < load_image.width_res; j++) {
-            BOOST_CHECK(load_image.get_color(i, j) == Color(1.0, 1.0, 1.0));
+            BOOST_CHECK(load_image.get_color(i, j) == c);
         }
     }
 }
