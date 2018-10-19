@@ -11,6 +11,7 @@
 #include "vec.h"
 
 struct Texture {
+    virtual ~Texture() {}
     virtual Color get_value(const Hitpoint &hitpoint) const = 0;
 };
 
@@ -30,6 +31,10 @@ struct ImageTexture : public Texture {
     ImageTexture() : image_ptr(nullptr), mapping_ptr(nullptr) {}
     ImageTexture(Image *image_ptr, Mapping *mapping_ptr)
         : image_ptr(image_ptr), mapping_ptr(mapping_ptr) {}
+    ~ImageTexture() {
+        delete image_ptr;
+        delete mapping_ptr;
+    }
 
     void set_image(Image *image_ptr) { this->image_ptr = image_ptr; }
     void set_mapping(Mapping *mapping_ptr) { this->mapping_ptr = mapping_ptr; }
@@ -78,6 +83,7 @@ struct FBmTexture : public Texture {
     FBmTexture(LatticeNoise *noise_ptr, const Vec &color, const double &min_value,
                const double &max_value)
         : noise_ptr(noise_ptr), color(color), min_value(min_value), max_value(max_value) {}
+    ~FBmTexture() { delete noise_ptr; }
 
     void set_noise_ptr(LatticeNoise *noise_ptr) { this->noise_ptr = noise_ptr; }
 
@@ -97,6 +103,7 @@ struct WrappedFBmTexture : public Texture {
     WrappedFBmTexture() : noise_ptr(nullptr), color(0.0, 0.0, 0.0), expansion_number(0.0) {}
     WrappedFBmTexture(LatticeNoise *noise_ptr, const Vec &color, const double &expansion_number)
         : noise_ptr(noise_ptr), color(color), expansion_number(expansion_number) {}
+    ~WrappedFBmTexture() { delete noise_ptr; }
 
     void set_noise_ptr(LatticeNoise *noise_ptr) { this->noise_ptr = noise_ptr; }
 
@@ -117,6 +124,7 @@ struct MarbleTexture : public Texture {
     MarbleTexture(LatticeNoise *noise_ptr, const Vec &color, const double &size,
                   const double &range)
         : noise_ptr(noise_ptr), color(color), size(size), range(range) {}
+    ~MarbleTexture() { delete noise_ptr; }
 
     void set_noise_ptr(LatticeNoise *noise_ptr) { this->noise_ptr = noise_ptr; }
 
