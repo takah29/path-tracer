@@ -17,7 +17,8 @@
 ./run.sh
 #+END_SRC
 
-** Reference
+** References
  - Kevin Suffern, "Ray Tracing from the Ground Up"
  - https://github.com/githole/edupt
  - https://qiita.com/omochi64/items/9336f57118ba918f82ec
+ - http://www.flipcode.com/archives/HDR_Image_Reader.shtml

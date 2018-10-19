@@ -8,7 +8,7 @@
 
 #include "vec.h"
 
-// debug用print関数
+// デバッグ用print関数
 template <class... A>
 void print() {
     std::cout << std::endl;
@@ -19,7 +19,7 @@ void prints_rest() {
 }
 template <class T, class... A>
 void prints_rest(const T &first, const A &... rest) {
-    std::cout << ", " << first;
+    std::cout << " " << first;
     prints_rest(rest...);
 }
 template <class T, class... A>
