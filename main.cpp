@@ -58,6 +58,11 @@ int main(int argc, char** argv) {
             if (!build_3(scene)) return 1;
             break;
         };
+        case 4: {
+            if (!build_4(scene)) return 1;
+            break;
+        };
+
         default: {
             if (!build_1(scene)) return 1;
             break;
