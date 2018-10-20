@@ -201,6 +201,8 @@ struct SmoothSurface : public Surface {
         }
 
         for (auto &v : vertex_normals) {
+            // 不正な法線を置き換え
+            if (v == Vec(0.0, 0.0, 0.0)) v = Vec(1.0, 0.0, 0.0);
             v.normalize();
         }
     }
