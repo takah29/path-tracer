@@ -3,10 +3,12 @@
 
 #include <memory>
 #include "camera.h"
+#include "hdr.h"
 #include "loader.h"
 #include "random.h"
 #include "scene.h"
 #include "tracer.h"
+#include "utility.h"
 
 // Texture
 CubicNoise* noise_ptr = new CubicNoise;
@@ -36,7 +38,7 @@ std::map<std::string, Material> materials = {
     {"green",
      Material(new ConstantTexture(Color(0.25, 0.75, 0.25)), Color(), ReflectionType::DIFFUSE)},
     {"checker", Material(new CheckerTexture(Color(1.0, 1.0, 1.0), Color(0.3, 0.3, 0.3)), Color(),
-                         ReflectionType::SPECULAR)},
+                         ReflectionType::DIFFUSE)},
     {"fbm", Material(fbm_texture, Color(), ReflectionType::DIFFUSE)},
     {"marble", Material(marble_texture, Color(), ReflectionType::DIFFUSE)}};
 
@@ -76,7 +78,10 @@ bool build_1(Scene& scene) {
 bool build_2(Scene& scene) {
     Vec eye(10, 5, 10), lookat(0.0, 2.0, 0.0);
     Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+    Texture* ibl_ptr(new ConstantTexture(Color(BLACK)));
+
     scene.set_camera(pinhole_ptr);
+    scene.set_ibl(ibl_ptr);
 
     Object* plane_ptr(new Plane(Vec(0.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), &materials["marble"]));
     scene.add_object(plane_ptr);
@@ -84,13 +89,7 @@ bool build_2(Scene& scene) {
     Object* box_ptr(new Box(Vec(-1.0, 2.0, -1.0), Vec(1.0, 0.0, 1.0), &materials["green"]));
     scene.add_object(box_ptr);
 
-    Image* image = load_ppm_P3_file_("images/result.ppm");
-    SphericalMap* mapping = new SphericalMap();
-    // ImageTexture* image_texture = new ImageTexture(image, mapping);
-    Material* material_earth =
-        new Material(new ImageTexture(image, mapping), Color(), ReflectionType::DIFFUSE);
-
-    Object* sphere_ptr(new Sphere(1.0, Vec(0.0, 3.0, 0.0), material_earth));
+    Object* sphere_ptr(new Sphere(1.0, Vec(0.0, 3.0, 0.0), &materials["red"]));
     scene.add_object(sphere_ptr);
 
     // Light source
@@ -102,15 +101,19 @@ bool build_2(Scene& scene) {
 
 // ply file scene
 bool build_3(Scene& scene) {
-    Vec eye(0, 3, 9), lookat(0.0, 2.0, 0.0);
+    Vec eye(-1.8, 1.2, 1.8), lookat(0.0, 1.0, 0.0);
     Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
-    scene.set_camera(pinhole_ptr);
 
-    Object* plane_ptr(new Plane(Vec(0.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), &materials["green"]));
+    Texture* ibl_ptr(new ConstantTexture(Color(BLACK)));
+
+    scene.set_camera(pinhole_ptr);
+    scene.set_ibl(ibl_ptr);
+
+    Object* plane_ptr(new Plane(Vec(-3.0, -0.1, -3.0), Vec(3.0, 0.0, 3.0), &materials["checker"]));
     scene.add_object(plane_ptr);
 
-    SmoothSurface* surface = new SmoothSurface(&materials["gray"]);
-    if (!from_ply_file("./models/bunny/reconstruction/bun_zipper.ply", surface)) return false;
+    SmoothSurface* surface = new SmoothSurface(&materials["refraction"]);
+    if (!from_ply_file("./models/happy_recon/happy_vrip_res2.ply", surface)) return false;
     surface->scale(2. / (surface->bbox.corner1.x - surface->bbox.corner0.x));
     surface->move(Vec(-surface->bbox.center.x, -surface->bbox.corner0.y, -surface->bbox.center.z));
     Object* surface_ptr = static_cast<Object*>(surface);
@@ -133,6 +136,34 @@ bool build_3(Scene& scene) {
             new Sphere(0.1, Vec(10.0 * rnd() - 5., 10.0 * rnd(), 10.0 * rnd() - 5.), material);
         scene.add_object(sphere_ptr);
     }
+
+    return true;
+}
+
+// hdr file scene
+bool build_4(Scene& scene) {
+    Vec eye(-1.8, 1.2, 1.8), lookat(0.0, 1.0, 0.0);
+    Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+
+    // IBL
+    Image* image_ptr = new Image();
+    load_hdr_image("hdr_image/Tropical_Beach_3k.hdr", *image_ptr);
+    image_ptr->flip();
+    Mapping* mapping_ptr = new SphericalMap();
+    Texture* ibl_ptr(new ImageTexture(image_ptr, mapping_ptr));
+
+    scene.set_camera(pinhole_ptr);
+    scene.set_ibl(ibl_ptr);
+
+    Object* box_ptr(new Box(Vec(-3.0, -0.1, -3.0), Vec(3.0, 0.0, 3.0), &materials["checker"]));
+    scene.add_object(box_ptr);
+
+    SmoothSurface* surface = new SmoothSurface(&materials["red"]);
+    if (!from_ply_file("./models/dragon_recon/dragon_vrip_res2.ply", surface)) return false;
+    surface->scale(2. / (surface->bbox.corner1.x - surface->bbox.corner0.x));
+    surface->move(Vec(-surface->bbox.center.x, -surface->bbox.corner0.y, -surface->bbox.center.z));
+    Object* surface_ptr = static_cast<Object*>(surface);
+    scene.add_object(surface_ptr);
 
     return true;
 }
