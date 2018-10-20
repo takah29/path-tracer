@@ -90,6 +90,15 @@ inline double clamp(const double x, const double min = 0.0, const double max = 1
 
 inline int to_int(const double x) { return static_cast<int>(pow(clamp(x), 1 / 2.2) * 255.0 + 0.5); }
 
+std::vector<double> linspace(double start, double end, int n, bool endpoint=true) {
+    double delta = endpoint == true ? (end - start) / (n - 1) : (end - start) / n;
+    std::vector<double> result(n);
+    for (int i = 0; i < n; i++) {
+        result[i] = start + i * delta;
+    }
+    return result;
+}
+
 Image load_ascii_ppm_file(const std::string &filename) {
     std::ifstream infile(filename);
     std::string line;
