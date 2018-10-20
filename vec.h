@@ -71,6 +71,11 @@ struct Vec {
         y /= l;
         z /= l;
     }
+
+    friend std::ostream &operator<<(std::ostream &os, const Vec &v) {
+        os << "Vec(" << v.x << ", " << v.y << ", " << v.z << ")";
+        return os;
+    }
 };
 
 inline Vec operator*(double lhs, const Vec &rhs) { return rhs * lhs; }
@@ -96,6 +101,15 @@ inline Vec max(const Vec &v1, const Vec &v2) {
 
 inline Vec min(const Vec &v1, const Vec &v2) {
     return Vec(std::min(v1.x, v2.x), std::min(v1.y, v2.y), std::min(v1.z, v2.z));
+}
+
+inline Vec spherical_coordinate_vec(double theta, double phi) {
+    double x = std::sin(theta) * std::sin(phi);
+    double y = std::cos(theta);
+    double z = std::sin(theta) * std::cos(phi);
+    if (x == -0.0) x = 0.0;
+    if (z == -0.0) z = 0.0;
+    return Vec(x, y, z);
 }
 
 using Color = Vec;

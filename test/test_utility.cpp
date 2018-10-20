@@ -22,24 +22,47 @@ BOOST_AUTO_TEST_CASE(test_correct_to_int) {
     BOOST_CHECK_EQUAL(to_int(1.1), 255);
 }
 
-BOOST_AUTO_TEST_CASE(test_correct_save_ppm) {
-    std::string filename = "test_image.ppm";
-    int width = 4, height = 3;
-    Color c = Color(1.0, 1.0, 1.0);
-    std::vector<Color> image(width * height, c);
-    save_ppm_file(filename, image, width, height);
+BOOST_AUTO_TEST_CASE(test_correct_linspace) {
+    double start = 123, end = 456;
+    int n = 50;
 
-    std::ifstream infile(filename);
-    std::string line;
-    getline(infile, line);
-    BOOST_CHECK_EQUAL(line, "P3");
-    getline(infile, line);
-    BOOST_CHECK_EQUAL(line, "4 3");
-    getline(infile, line);
-    BOOST_CHECK_EQUAL(line, "255");
-    for (int i = 0; i < width * height; i++) {
-        getline(infile, line);
-        BOOST_CHECK_EQUAL(line, "255 255 255");
+    auto result = linspace(start, end, n);
+    BOOST_CHECK_EQUAL(result.size(), n);
+    BOOST_CHECK_EQUAL(result[0], start);
+    BOOST_CHECK_EQUAL(result[n - 1], end);
+
+    start = 5;
+    end = 10;
+    n = 5;
+    result = linspace(start, end, n, false);
+    BOOST_CHECK_EQUAL(result.size(), n);
+    BOOST_CHECK_EQUAL(result[0], start);
+    BOOST_CHECK_EQUAL(result[n - 1], 9.0);
+}
+
+BOOST_AUTO_TEST_CASE(test_correct_save_and_load_ppm_file) {
+    // save ppm file
+    std::string filename = "test_image.ppm";
+    int width_res = 4, height_res = 3;
+    Color c = Color(1.0, 1.0, 1.0);
+    Image image(width_res, height_res);
+
+    for (int i = 0; i < image.height_res; i++) {
+        for (int j = 0; j < image.width_res; j++) {
+            image.set_color(c, i, j);
+        }
+    }
+    save_ppm_file(filename, image);
+
+    // load ppm file
+    Image load_image = load_ascii_ppm_file(filename);
+
+    BOOST_CHECK_EQUAL(load_image.width_res, width_res);
+    BOOST_CHECK_EQUAL(load_image.height_res, height_res);
+    for (int i = 0; i < load_image.height_res; i++) {
+        for (int j = 0; j < load_image.width_res; j++) {
+            BOOST_CHECK(load_image.get_color(i, j) == c);
+        }
     }
 }
 

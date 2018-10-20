@@ -46,6 +46,7 @@ struct LatticeNoise {
           fBm_max(1.0) {
         init_value_table(SEED_VALUE);
     }
+    virtual ~LatticeNoise() {}
 
     void set_num_octaves(const int &num_octaves) { this->num_octaves = num_octaves; }
     void set_fs_range(const double &fs_min, const double &fs_max) {

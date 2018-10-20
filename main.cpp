@@ -4,11 +4,11 @@
 #include "build.h"
 #include "scene.h"
 
-auto get_params(std::vector<std::string>& args) {
+std::map<std::string, std::string> get_params(std::vector<std::string>& args) {
     // Default parameter
     std::map<std::string, std::string> params{
-        {"samples", "4"},      {"super_samples", "4"}, {"plane_width", "1.0"}, {"width_res", "320"},
-        {"height_res", "240"}, {"scene_num", "3"},     {"tracer", "pt"}};
+        {"samples", "2"},      {"super_samples", "4"}, {"plane_width", "1.8"}, {"width_res", "640"},
+        {"height_res", "480"}, {"scene_num", "4"},     {"tracer", "pt"}};
 
     for (size_t i = 1; i < args.size(); i += 2) {
         if (args[i] == "-s") {

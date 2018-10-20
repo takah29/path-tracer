@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include "camera.h"
+#include "mapping.h"
 #include "object.h"
 #include "random.h"
 #include "surface.h"
@@ -27,13 +28,18 @@ class Scene {
     Camera *camera_ptr;
     std::vector<Object *> objects;
     BVH bvh;
+    Texture *ibl_ptr;
 
    public:
-    Scene() : camera_ptr(nullptr), objects(0) {}
+    Scene() : camera_ptr(nullptr), objects(0), ibl_ptr(nullptr) {}
 
-    ~Scene() { delete camera_ptr; }
+    ~Scene() {
+        delete camera_ptr;
+        delete ibl_ptr;
+    }
 
     void set_camera(Camera *camera_ptr) { this->camera_ptr = camera_ptr; }
+    void set_ibl(Texture *ibl_ptr) { this->ibl_ptr = ibl_ptr; }
     void add_object(Object *object_ptr) { objects.push_back(object_ptr); }
 
     std::vector<Object *> get_lights() {
@@ -59,15 +65,15 @@ class Scene {
     void render(const std::map<std::string, std::string> &params) {
         const int samples = std::stoi(params.at("samples"));
         const int super_samples = std::stoi(params.at("super_samples"));
-        const ViewPlane vp(std::stoi(params.at("plane_width")), std::stoi(params.at("width_res")),
+        const ViewPlane vp(std::stod(params.at("plane_width")), std::stoi(params.at("width_res")),
                            std::stoi(params.at("height_res")));
 
-        std::vector<Color> img_vector(vp.height_res * vp.width_res, 0.0);
+        Image image(vp.width_res, vp.height_res);
 
-        // path-tracing
+        // for path-tracing
         UniformRealGenerator rnd(1);
 
-        // ray-tracing or path-tracing with NEE
+        // for ray-tracing or path-tracing with NEE
         std::vector<Object *> lights = get_lights();
 
         // 空間データ構造の構築
@@ -93,16 +99,16 @@ class Scene {
                         Ray ray(camera_ptr->eye, camera_ptr->ray_direction(pp));
 
                         for (int k = 0; k < samples; k++) {
-                            accumulated_radiance += path_trace(ray, objects, bvh, rnd, 0);
+                            accumulated_radiance += path_trace(ray, objects, bvh, ibl_ptr, rnd, 0);
                             // accumulated_radiance += ray_trace(ray, objects, lights, bvh);
                         }
-                        img_vector[idx] +=
+                        image.color_vec[idx] +=
                             accumulated_radiance / (samples * super_samples * super_samples);
                     }
                 }
             }
         }
-        save_ppm_file("result.ppm", img_vector, vp.width_res, vp.height_res);
+        save_ppm_file("result.ppm", image);
     }
 };
 
