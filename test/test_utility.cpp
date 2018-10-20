@@ -22,6 +22,24 @@ BOOST_AUTO_TEST_CASE(test_correct_to_int) {
     BOOST_CHECK_EQUAL(to_int(1.1), 255);
 }
 
+BOOST_AUTO_TEST_CASE(test_correct_linspace) {
+    double start = 123, end = 456;
+    int n = 50;
+
+    auto result = linspace(start, end, n);
+    BOOST_CHECK_EQUAL(result.size(), n);
+    BOOST_CHECK_EQUAL(result[0], start);
+    BOOST_CHECK_EQUAL(result[n - 1], end);
+
+    start = 5;
+    end = 10;
+    n = 5;
+    result = linspace(start, end, n, false);
+    BOOST_CHECK_EQUAL(result.size(), n);
+    BOOST_CHECK_EQUAL(result[0], start);
+    BOOST_CHECK_EQUAL(result[n - 1], 9.0);
+}
+
 BOOST_AUTO_TEST_CASE(test_correct_save_and_load_ppm_file) {
     // save ppm file
     std::string filename = "test_image.ppm";

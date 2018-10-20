@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE vec
 #include <boost/test/included/unit_test.hpp>
 
+#include "../utility.h"
 #include "../vec.h"
 
 struct Fixture {
@@ -69,6 +70,23 @@ BOOST_AUTO_TEST_CASE(test_correct_multiply) {
 BOOST_AUTO_TEST_CASE(test_correct_cross) {
     const Vec a(1.0, 0.0, 0.0), b(0.0, 1.0, 0.0);
     BOOST_CHECK(cross(a, b) == Vec(0.0, 0.0, 1.0));
+}
+
+BOOST_AUTO_TEST_CASE(test_correct_spherical_coordinate_vec) {
+    Vec result = spherical_coordinate_vec(0.0, 0.0);
+    BOOST_CHECK(result == Vec(0.0, 1.0, 0.0));
+    result = spherical_coordinate_vec(M_PI / 2, 0.0);
+    BOOST_CHECK(result == Vec(0.0, 0.0, 1.0));
+    result = spherical_coordinate_vec(M_PI / 2, M_PI / 2);
+    BOOST_CHECK(result == Vec(1.0, 0.0, 0.0));
+    result = spherical_coordinate_vec(M_PI / 2, M_PI);
+    BOOST_CHECK(result == Vec(0.0, 0.0, -1.0));
+    result = spherical_coordinate_vec(M_PI / 2, M_PI * 3 / 2);
+    BOOST_CHECK(result == Vec(-1.0, 0.0, 0.0));
+    result = spherical_coordinate_vec(M_PI / 2, 2 * M_PI);
+    BOOST_CHECK(result == Vec(0.0, 0.0, 1.0));
+    result = spherical_coordinate_vec(M_PI, 0.0);
+    BOOST_CHECK(result == Vec(0.0, -1.0, 0.0));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

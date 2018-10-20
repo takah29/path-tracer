@@ -6,4 +6,5 @@ clang++ -std=c++1z test_utility.cpp; ./a.out
 clang++ -std=c++1z test_vec.cpp; ./a.out
 clang++ -std=c++1z test_bvh.cpp; ./a.out
 clang++ -std=c++1z test_random.cpp; ./a.out
+clang++ -std=c++1z test_mapping.cpp; ./a.out
 
