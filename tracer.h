@@ -133,10 +133,11 @@ Color ray_trace(const Ray &ray, const std::vector<Object *> objects,
 
 // パストレーサー
 Color path_trace(const Ray &ray, const std::vector<Object *> objects, const BVH &bvh,
-                 UniformRealGenerator &rnd, const int depth) {
+                 Texture *ibl_ptr, UniformRealGenerator &rnd, const int depth) {
     Intersection intersection;
     if (!intersect_objects(ray, objects, bvh, intersection)) {
-        return BACKGROUND_COLOR;
+        intersection.hitpoint.normal = ray.dir;
+        return ibl_ptr->get_value(intersection.hitpoint);
     }
 
     const Object *target_object = objects[intersection.object_id];
@@ -170,13 +171,13 @@ Color path_trace(const Ray &ray, const std::vector<Object *> objects, const BVH 
             auto[u, v] = create_orthonormal_basis(w);
             Vec dir = sample_from_hemisphere(u, v, w, rnd, 1.0);
             incoming_radiance =
-                path_trace(Ray(hitpoint.position, dir), objects, bvh, rnd, depth + 1);
+                path_trace(Ray(hitpoint.position, dir), objects, bvh, ibl_ptr, rnd, depth + 1);
             weight = target_obj_color / russian_roulette_probability;
         } break;
 
         case ReflectionType::SPECULAR: {
             Ray reflection_ray = calc_reflection_ray(ray.dir, hitpoint);
-            incoming_radiance = path_trace(reflection_ray, objects, bvh, rnd, depth + 1);
+            incoming_radiance = path_trace(reflection_ray, objects, bvh, ibl_ptr, rnd, depth + 1);
             weight = target_obj_color / russian_roulette_probability;
         } break;
 
@@ -190,7 +191,8 @@ Color path_trace(const Ray &ray, const std::vector<Object *> objects, const BVH 
             const double cos2t = 1.0 - n1n2 * n1n2 * (1.0 - ans_dot * ans_dot);
 
             if (cos2t < 0.0) {
-                incoming_radiance = path_trace(reflection_ray, objects, bvh, rnd, depth + 1);
+                incoming_radiance =
+                    path_trace(reflection_ray, objects, bvh, ibl_ptr, rnd, depth + 1);
                 weight = target_obj_color / russian_roulette_probability;
                 break;
             }
@@ -212,17 +214,18 @@ Color path_trace(const Ray &ray, const std::vector<Object *> objects, const BVH 
             if (depth > 2) {
                 if (rnd() < probability) {  // 反射
                     incoming_radiance =
-                        path_trace(reflection_ray, objects, bvh, rnd, depth + 1) * Re;
+                        path_trace(reflection_ray, objects, bvh, ibl_ptr, rnd, depth + 1) * Re;
                     weight = target_obj_color / (probability * russian_roulette_probability);
                 } else {  // 屈折
                     incoming_radiance =
-                        path_trace(refraction_ray, objects, bvh, rnd, depth + 1) * Tr;
+                        path_trace(refraction_ray, objects, bvh, ibl_ptr, rnd, depth + 1) * Tr;
                     weight =
                         target_obj_color / ((1.0 - probability) * russian_roulette_probability);
                 }
             } else {  // 屈折と反射の両方を追跡
-                incoming_radiance = path_trace(reflection_ray, objects, bvh, rnd, depth + 1) * Re +
-                                    path_trace(refraction_ray, objects, bvh, rnd, depth + 1) * Tr;
+                incoming_radiance =
+                    path_trace(reflection_ray, objects, bvh, ibl_ptr, rnd, depth + 1) * Re +
+                    path_trace(refraction_ray, objects, bvh, ibl_ptr, rnd, depth + 1) * Tr;
                 weight = target_obj_color / russian_roulette_probability;
             }
         } break;
