@@ -100,7 +100,7 @@ class Scene {
 
                         for (int k = 0; k < samples; k++) {
                             accumulated_radiance += path_trace(ray, objects, bvh, ibl_ptr, rnd, 0);
-                            // accumulated_radiance += ray_trace(ray, objects, lights, bvh);
+                            //accumulated_radiance += ray_trace(ray, objects, lights, bvh);
                         }
                         image.color_vec[idx] +=
                             accumulated_radiance / (samples * super_samples * super_samples);

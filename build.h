@@ -34,7 +34,7 @@ std::map<std::string, Material> materials = {
     {"week_light_1",
      Material(new ConstantTexture(Color()), Color(25, 25, 25), ReflectionType::DIFFUSE)},
     {"week_light_2",
-     Material(new ConstantTexture(Color()), Color(5, 5, 5), ReflectionType::DIFFUSE)},
+     Material(new ConstantTexture(Color()), Color(15, 15, 15), ReflectionType::DIFFUSE)},
     {"green",
      Material(new ConstantTexture(Color(0.25, 0.75, 0.25)), Color(), ReflectionType::DIFFUSE)},
     {"checker", Material(new CheckerTexture(Color(1.0, 1.0, 1.0), Color(0.3, 0.3, 0.3)), Color(),
@@ -76,7 +76,7 @@ bool build_1(Scene& scene) {
 
 // Sphere on plane
 bool build_2(Scene& scene) {
-    Vec eye(10, 5, 10), lookat(0.0, 2.0, 0.0);
+    Vec eye(10, 5, 9), lookat(0.0, 2.0, 0.0);
     Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
     Texture* ibl_ptr(new ConstantTexture(Color(BLACK)));
 
@@ -101,7 +101,7 @@ bool build_2(Scene& scene) {
 
 // ply file scene
 bool build_3(Scene& scene) {
-    Vec eye(-1.8, 1.2, 1.8), lookat(0.0, 1.0, 0.0);
+    Vec eye(0.0, 2., 5), lookat(0.0, 1.0, 0.0);
     Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
 
     Texture* ibl_ptr(new ConstantTexture(Color(BLACK)));
@@ -109,11 +109,11 @@ bool build_3(Scene& scene) {
     scene.set_camera(pinhole_ptr);
     scene.set_ibl(ibl_ptr);
 
-    Object* plane_ptr(new Plane(Vec(-3.0, -0.1, -3.0), Vec(3.0, 0.0, 3.0), &materials["checker"]));
+    Object* plane_ptr(new Plane(Vec(0.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), &materials["green"]));
     scene.add_object(plane_ptr);
 
-    SmoothSurface* surface = new SmoothSurface(&materials["refraction"]);
-    if (!from_ply_file("./models/happy_recon/happy_vrip_res2.ply", surface)) return false;
+    SmoothSurface* surface = new SmoothSurface(&materials["gray"]);
+    if (!from_ply_file("./models/bunny/reconstruction/bun_zipper.ply", surface)) return false;
     surface->scale(2. / (surface->bbox.corner1.x - surface->bbox.corner0.x));
     surface->move(Vec(-surface->bbox.center.x, -surface->bbox.corner0.y, -surface->bbox.center.z));
     Object* surface_ptr = static_cast<Object*>(surface);
@@ -127,7 +127,7 @@ bool build_3(Scene& scene) {
     scene.add_object(sphere_ptr);
 
     UniformRealGenerator rnd(4);
-    const int n_lights = 10;
+    const int n_lights = 100;
     for (int i = 0; i < n_lights; i++) {
         Material* material =
             new Material(new ConstantTexture(Color()), Color(6 * rnd(), 6 * rnd(), 6 * rnd()),
@@ -142,23 +142,23 @@ bool build_3(Scene& scene) {
 
 // hdr file scene
 bool build_4(Scene& scene) {
-    Vec eye(-1.8, 1.2, 1.8), lookat(0.0, 1.0, 0.0);
+    Vec eye(-1.8, 1.2, 1.8), lookat(0.0, 0.8, 0.0);
     Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
 
     // IBL
     Image* image_ptr = new Image();
-    load_hdr_image("hdr_image/Tropical_Beach_3k.hdr", *image_ptr);
+    load_hdr_image("hdr_image/kiara_6_afternoon_4k.hdr", *image_ptr);
     image_ptr->flip();
-    Mapping* mapping_ptr = new SphericalMap();
+    Mapping* mapping_ptr = new SphericalMap(45.);
     Texture* ibl_ptr(new ImageTexture(image_ptr, mapping_ptr));
 
     scene.set_camera(pinhole_ptr);
     scene.set_ibl(ibl_ptr);
 
-    Object* box_ptr(new Box(Vec(-3.0, -0.1, -3.0), Vec(3.0, 0.0, 3.0), &materials["checker"]));
+    Object* box_ptr(new Box(Vec(-3.0, -0.1, -3.0), Vec(3.0, 0.0, 3.0), &materials["gray"]));
     scene.add_object(box_ptr);
 
-    SmoothSurface* surface = new SmoothSurface(&materials["red"]);
+    SmoothSurface* surface = new SmoothSurface(&materials["green"]);
     if (!from_ply_file("./models/dragon_recon/dragon_vrip_res2.ply", surface)) return false;
     surface->scale(2. / (surface->bbox.corner1.x - surface->bbox.corner0.x));
     surface->move(Vec(-surface->bbox.center.x, -surface->bbox.corner0.y, -surface->bbox.center.z));
