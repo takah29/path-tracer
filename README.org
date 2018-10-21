@@ -1,6 +1,7 @@
 # _*_ coding: utf-8 _*_
 * Path Tracer
 [[https://github.com/takah29/path-tracer/blob/master/images/happy_8192spp.png]]
+[[https://github.com/takah29/path-tracer/blob/master/images/dragon_ibl_16184spp.png]]
 
 ** Features
  - Path Tracing
