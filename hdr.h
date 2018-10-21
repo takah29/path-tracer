@@ -7,7 +7,7 @@
 using RGBE = unsigned char[4];
 
 inline std::tuple<double, double, double> convert_components(RGBE rgbe) {
-    double e = static_cast<double>(pow(2, rgbe[3] - 128));
+    double e = pow(2, rgbe[3] - 128);
     double red = e * rgbe[0] / 256.0;
     double green = e * rgbe[1] / 256.0;
     double blue = e * rgbe[2] / 256.0;
