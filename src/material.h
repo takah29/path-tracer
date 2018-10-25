@@ -24,12 +24,10 @@ struct Material {
     Color emission;
     ReflectionType reflection_type;
 
-    Material()
-        : color_ptr(nullptr), emission(Vec(0.0, 0.0, 0.0)), reflection_type(ReflectionType::DIFFUSE) {}
-    Material(Texture *color_ptr, const Color &emission, const ReflectionType &reflection_type)
-        : color_ptr(color_ptr), emission(emission), reflection_type(reflection_type) {}
+    Material();
+    Material(Texture *color_ptr, const Color &emission, const ReflectionType &reflection_type);
 
-    void set_color(Texture *color_ptr) { this->color_ptr = color_ptr; }
+    void set_color(Texture *color_ptr);
 };
 
 #endif

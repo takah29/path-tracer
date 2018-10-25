@@ -1,64 +1,19 @@
-#ifndef _UTILITY_H_
-#define _UTILITY_H_
-
+#include "utility.h"
 #include <fstream>
-#include <iostream>
-#include <string>
-#include <vector>
 
-#include "vec.h"
+Image::Image() : width_res(-1), height_res(-1), color_vec(0) {}
+Image::Image(const int width_res, const int height_res)
+    : width_res(width_res), height_res(height_res), color_vec(height_res * width_res) {}
 
-// デバッグ用print関数
-template <class... A>
-void print() {
-    std::cout << std::endl;
-}
-template <class... A>
-void prints_rest() {
-    std::cout << std::endl;
-}
-template <class T, class... A>
-void prints_rest(const T &first, const A &... rest) {
-    std::cout << " " << first;
-    prints_rest(rest...);
-}
-template <class T, class... A>
-void print(const T &first, const A &... rest) {
-    std::cout << first;
-    prints_rest(rest...);
-}
-
-struct Image {
-    int width_res, height_res;
-    std::vector<Color> color_vec;
-
-    Image() : width_res(-1), height_res(-1), color_vec(0) {}
-    Image(const int &width_res, const int &height_res)
-        : width_res(width_res), height_res(height_res), color_vec(height_res * width_res) {}
-
-    inline void set_image_size(const int &width_res, const int &height_res) {
-        this->width_res = width_res;
-        this->height_res = height_res;
-        this->color_vec.resize(width_res * height_res);
-    }
-
-    void flip() {
-        std::vector<Color> tmp_color_vec(width_res * height_res);
-        for (int i = 0; i < height_res; i++) {
-            for (int j = 0; j < width_res; j++) {
-                tmp_color_vec[i * width_res + j] = color_vec[i * width_res + (width_res - 1 - j)];
-            }
+void Image::flip() {
+    std::vector<Color> tmp_color_vec(width_res * height_res);
+    for (int i = 0; i < height_res; i++) {
+        for (int j = 0; j < width_res; j++) {
+            tmp_color_vec[i * width_res + j] = color_vec[i * width_res + (width_res - 1 - j)];
         }
-        color_vec = tmp_color_vec;
     }
-
-    inline Color get_color(const int &row, const int &column) const {
-        return color_vec[row * width_res + column];
-    }
-    inline void set_color(const Color &color, const int &row, const int &column) {
-        color_vec[row * width_res + column] = color;
-    }
-};
+    color_vec = tmp_color_vec;
+}
 
 std::vector<std::string> split(const std::string &s, const char delim) {
     std::vector<std::string> result;
@@ -78,19 +33,8 @@ std::vector<std::string> split(const std::string &s, const char delim) {
     return result;
 }
 
-inline double clamp(const double x, const double min = 0.0, const double max = 1.0) {
-    if (x > max) {
-        return max;
-    } else if (x < min) {
-        return min;
-    } else {
-        return x;
-    }
-}
-
-inline int to_int(const double x) { return static_cast<int>(pow(clamp(x), 1 / 2.2) * 255.0 + 0.5); }
-
-std::vector<double> linspace(double start, double end, int n, bool endpoint=true) {
+std::vector<double> linspace(const double start, const double end, const int n,
+                             const bool endpoint) {
     double delta = endpoint == true ? (end - start) / (n - 1) : (end - start) / n;
     std::vector<double> result(n);
     for (int i = 0; i < n; i++) {
@@ -133,7 +77,7 @@ Image load_ppm_P6_file(const std::string &filename) {
     getline(infile, line);
     // printf("%s", line.c_str());
     if (line != "P6") {
-        printf("Error: Expected file type is P3.\n");
+        printf("Error: Expected file type is P6.\n");
         exit(1);
     }
 
@@ -152,7 +96,7 @@ Image load_ppm_P6_file(const std::string &filename) {
             infile.read((char *)&g, 1);
             infile.read((char *)&b, 1);
             image.set_color(
-                Color((double)r / max_value, (double)g / max_value, (double)b / max_value), i, j);
+                Color(double(r) / max_value, double(g) / max_value, double(b) / max_value), i, j);
         }
     }
 
@@ -175,5 +119,3 @@ void save_ppm_file(const std::string &filename, const Image &image) {
 
     outfile.close();
 }
-
-#endif

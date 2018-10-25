@@ -2,7 +2,6 @@
 #define _VEC_H_
 
 #include <algorithm>
-#include <cmath>
 #include "constant.h"
 
 using Point2D = std::pair<double, double>;
@@ -10,12 +9,12 @@ using Point2D = std::pair<double, double>;
 struct Vec {
     double x, y, z;
 
-    Vec(const double x = 0.0, const double y = 0.0, const double z = 0.0) : x(x), y(y), z(z) {}
+    Vec(const double x = 0.0, const double y = 0.0, const double z = 0.0);
 
     inline Vec operator+(const Vec &rhs) const { return Vec(x + rhs.x, y + rhs.y, z + rhs.z); }
-    inline Vec operator+(const double &rhs) const { return Vec(x + rhs, y + rhs, z + rhs); }
+    inline Vec operator+(const double rhs) const { return Vec(x + rhs, y + rhs, z + rhs); }
     inline Vec operator-(const Vec &rhs) const { return Vec(x - rhs.x, y - rhs.y, z - rhs.z); }
-    inline Vec operator-(const double &rhs) const { return Vec(x - rhs, y - rhs, z - rhs); }
+    inline Vec operator-(const double rhs) const { return Vec(x - rhs, y - rhs, z - rhs); }
     inline Vec operator*(const double rhs) const { return Vec(x * rhs, y * rhs, z * rhs); }
     inline Vec operator/(const double rhs) const { return Vec(x / rhs, y / rhs, z / rhs); }
 
@@ -39,7 +38,7 @@ struct Vec {
         y += rhs.y;
         z += rhs.z;
     }
-    inline void operator+=(const double &rhs) {
+    inline void operator+=(const double rhs) {
         x += rhs;
         y += rhs;
         z += rhs;
@@ -49,36 +48,28 @@ struct Vec {
         y -= rhs.y;
         z -= rhs.z;
     }
-    inline void operator-=(const double &rhs) {
+    inline void operator-=(const double rhs) {
         x -= rhs;
         y -= rhs;
         z -= rhs;
     }
-    inline void operator*=(const double &rhs) {
+    inline void operator*=(const double rhs) {
         x *= rhs;
         y *= rhs;
         z *= rhs;
     }
-    inline void operator/=(const double &rhs) {
+    inline void operator/=(const double rhs) {
         x /= rhs;
         y /= rhs;
         z /= rhs;
     }
 
-    inline void normalize() {
-        double l = sqrt(x * x + y * y + z * z);
-        x /= l;
-        y /= l;
-        z /= l;
-    }
+    void normalize();
 
-    friend std::ostream &operator<<(std::ostream &os, const Vec &v) {
-        os << "Vec(" << v.x << ", " << v.y << ", " << v.z << ")";
-        return os;
-    }
+    friend std::ostream &operator<<(std::ostream &os, const Vec &v);
 };
 
-inline Vec operator*(double lhs, const Vec &rhs) { return rhs * lhs; }
+inline Vec operator*(const double lhs, const Vec &rhs) { return rhs * lhs; }
 
 inline double dot(const Vec &v1, const Vec &v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z; }
 
@@ -103,14 +94,7 @@ inline Vec min(const Vec &v1, const Vec &v2) {
     return Vec(std::min(v1.x, v2.x), std::min(v1.y, v2.y), std::min(v1.z, v2.z));
 }
 
-inline Vec spherical_coordinate_vec(double theta, double phi) {
-    double x = std::sin(theta) * std::sin(phi);
-    double y = std::cos(theta);
-    double z = std::sin(theta) * std::cos(phi);
-    if (x == -0.0) x = 0.0;
-    if (z == -0.0) z = 0.0;
-    return Vec(x, y, z);
-}
+Vec spherical_coordinate_vec(const double theta, const double phi);
 
 using Color = Vec;
 using Point = Vec;

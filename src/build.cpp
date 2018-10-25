@@ -1,14 +1,4 @@
-#ifndef _BUILD_H_
-#define _BUILD_H_
-
-#include <memory>
-#include "camera.h"
-#include "hdr.h"
-#include "loader.h"
-#include "random.h"
-#include "scene.h"
-#include "tracer.h"
-#include "utility.h"
+#include "build.h"
 
 // Texture
 CubicNoise* noise_ptr = new CubicNoise;
@@ -167,5 +157,3 @@ bool build_4(Scene& scene) {
 
     return true;
 }
-
-#endif
