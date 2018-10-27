@@ -2,9 +2,9 @@
 #define _LATTICENOISE_H_
 
 #include <vector>
-#include "random.h"
-#include "utility.h"
-#include "vec.h"
+#include "random.hpp"
+#include "utility.hpp"
+#include "vec.hpp"
 
 const int TABLE_SIZE = 256;
 const int TABLE_MASK = TABLE_SIZE - 1;

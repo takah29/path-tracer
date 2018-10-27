@@ -1,5 +1,4 @@
-#include "scene.h"
-#include "omp.h"
+#include "scene.hpp"
 
 ViewPlane::ViewPlane(double plane_width, int width_res, int height_res)
     : plane_width(plane_width), width_res(width_res), height_res(height_res) {

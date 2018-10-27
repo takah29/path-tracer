@@ -1,4 +1,4 @@
-#include "camera.h"
+#include "camera.hpp"
 
 Camera::Camera(Vec eye, Vec lookat) : eye(eye), lookat(lookat), up(0.0, 1.0, 0.0) {
     w = normalize(eye - lookat);

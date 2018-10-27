@@ -1,4 +1,4 @@
-#include "texture.h"
+#include "texture.hpp"
 #include <cmath>
 
 ConstantTexture::ConstantTexture() : color(0.5, 0.5, 0.5) {}

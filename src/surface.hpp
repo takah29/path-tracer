@@ -6,11 +6,11 @@
 #include <string>
 #include <tuple>
 #include <vector>
-#include "bvh.h"
-#include "material.h"
-#include "object.h"
-#include "ray.h"
-#include "utility.h"
+#include "bvh.hpp"
+#include "material.hpp"
+#include "object.hpp"
+#include "ray.hpp"
+#include "utility.hpp"
 
 struct Surface : public Object {
     std::vector<Vec> vertices;

@@ -6,8 +6,8 @@
 #include <string>
 #include <tuple>
 #include <vector>
-#include "surface.h"
-#include "utility.h"
+#include "surface.hpp"
+#include "utility.hpp"
 
 template <typename S>
 bool from_ply_file(const std::string file_path, S* surface) {

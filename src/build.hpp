@@ -2,13 +2,13 @@
 #define _BUILD_H_
 
 #include <memory>
-#include "camera.h"
-#include "hdr.h"
-#include "loader.h"
-#include "random.h"
-#include "scene.h"
-#include "tracer.h"
-#include "utility.h"
+#include "camera.hpp"
+#include "hdr.hpp"
+#include "loader.hpp"
+#include "random.hpp"
+#include "scene.hpp"
+#include "tracer.hpp"
+#include "utility.hpp"
 
 bool build_1(Scene& scene);
 bool build_2(Scene& scene);

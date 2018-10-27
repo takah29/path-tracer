@@ -1,4 +1,4 @@
-#include "build.h"
+#include "build.hpp"
 
 // Texture
 CubicNoise* noise_ptr = new CubicNoise;

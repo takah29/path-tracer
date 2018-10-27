@@ -1,4 +1,4 @@
-#include "bvh.h"
+#include "bvh.hpp"
 #include <cassert>
 
 double calc_bbox_area(const BBox &bbox) {

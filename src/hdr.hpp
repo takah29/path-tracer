@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 #include <tuple>
-#include "utility.h"
+#include "utility.hpp"
 
 using RGBE = unsigned char[4];
 

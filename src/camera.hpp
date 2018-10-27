@@ -5,8 +5,8 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "utility.h"
-#include "vec.h"
+#include "utility.hpp"
+#include "vec.hpp"
 
 struct Camera {
     Vec eye, lookat;

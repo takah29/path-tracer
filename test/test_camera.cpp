@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <map>
-#include "../camera.h"
+#include "../src/camera.hpp"
 
 using namespace std;
 

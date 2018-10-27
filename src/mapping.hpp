@@ -4,9 +4,9 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <utility>
-#include "ray.h"
-#include "utility.h"
-#include "vec.h"
+#include "ray.hpp"
+#include "utility.hpp"
+#include "vec.hpp"
 
 struct Mapping {
     virtual Point2D get_uv_values(const Vec &v) const = 0;

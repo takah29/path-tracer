@@ -1,4 +1,4 @@
-#include "surface.h"
+#include "surface.hpp"
 
 Surface::Surface() : Object(), vertices(0), triangles(0), triangle_bboxes(0) {}
 Surface::Surface(Material *material_ptr)

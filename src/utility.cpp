@@ -1,4 +1,4 @@
-#include "utility.h"
+#include "utility.hpp"
 #include <fstream>
 
 Image::Image() : width_res(-1), height_res(-1), color_vec(0) {}

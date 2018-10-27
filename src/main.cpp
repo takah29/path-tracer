@@ -1,8 +1,8 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "build.h"
-#include "scene.h"
+#include "build.hpp"
+#include "scene.hpp"
 
 std::map<std::string, std::string> get_params(std::vector<std::string>& args) {
     // Default parameter

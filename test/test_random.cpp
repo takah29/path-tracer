@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE random
 #include <boost/test/included/unit_test.hpp>
 
-#include "../random.h"
+#include "../src/random.hpp"
 
 BOOST_AUTO_TEST_SUITE(test_uniform_real_generator_sute)
 BOOST_AUTO_TEST_CASE(test_correct_rand) {

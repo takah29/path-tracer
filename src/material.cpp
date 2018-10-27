@@ -1,4 +1,4 @@
-#include "material.h"
+#include "material.hpp"
 
 Material::Material()
     : color_ptr(nullptr), emission(Vec(0.0, 0.0, 0.0)), reflection_type(ReflectionType::DIFFUSE) {}

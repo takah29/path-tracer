@@ -4,7 +4,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
-#include "object.h"
+#include "object.hpp"
 
 double calc_bbox_area(const BBox &bbox);
 void merge_bbox(const BBox &bbox1, const BBox &bbox2, BBox &result);

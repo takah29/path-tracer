@@ -1,4 +1,4 @@
-#include "tracer.h"
+#include "tracer.hpp"
 
 // シーンの全オブジェクトの内、レイの原点に最も近いオブジェクトの情報を取得する
 bool intersect_objects(const Ray &ray, const std::vector<Object *> objects, const BVH &bvh,

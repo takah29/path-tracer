@@ -1,4 +1,4 @@
-#include "mapping.h"
+#include "mapping.hpp"
 
 SphericalMap::SphericalMap() : rotate_rad(0.0) {}
 SphericalMap::SphericalMap(const int degree) : rotate_rad(2 * M_PI * (degree % 360) / 360.0) {}

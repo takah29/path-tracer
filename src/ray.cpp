@@ -1,4 +1,4 @@
-#include "ray.h"
+#include "ray.hpp"
 
 Ray::Ray() : org(), dir() {}
 Ray::Ray(const Vec &org, const Vec &dir) : org(org), dir(dir) {}

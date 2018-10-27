@@ -2,7 +2,7 @@
 #define _VEC_H_
 
 #include <algorithm>
-#include "constant.h"
+#include "constant.hpp"
 
 using Point2D = std::pair<double, double>;
 

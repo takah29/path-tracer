@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "../utility.h"
+#include "../src/utility.hpp"
 
 BOOST_AUTO_TEST_SUITE(test_utility_sute)
 

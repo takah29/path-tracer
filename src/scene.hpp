@@ -4,12 +4,12 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-#include "camera.h"
-#include "mapping.h"
-#include "object.h"
-#include "random.h"
-#include "surface.h"
-#include "tracer.h"
+#include "camera.hpp"
+#include "mapping.hpp"
+#include "object.hpp"
+#include "random.hpp"
+#include "surface.hpp"
+#include "tracer.hpp"
 
 struct ViewPlane {
     double plane_width, plane_height;

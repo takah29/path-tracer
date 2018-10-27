@@ -2,11 +2,11 @@
 #define _TRACER_H_
 
 #define _USE_MATH_DEFINES
-#include "bvh.h"
-#include "object.h"
-#include "random.h"
-#include "ray.h"
-#include "vec.h"
+#include "bvh.hpp"
+#include "object.hpp"
+#include "random.hpp"
+#include "ray.hpp"
+#include "vec.hpp"
 
 const Color BACKGROUND_COLOR = BLACK;
 const double AMBIENT_COEF = 0.05;  // 環境光

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "vec.h"
+#include "vec.hpp"
 
 // デバッグ用print関数
 template <class... A>

@@ -1,8 +1,8 @@
 #ifndef _OBJECT_H_
 #define _OBJECT_H_
 
-#include "material.h"
-#include "ray.h"
+#include "material.hpp"
+#include "ray.hpp"
 
 struct BBox {
     Vec corner0;
