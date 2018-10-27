@@ -1,7 +1,8 @@
 CXX      = clang++
 CXXFLAGS = -std=c++1z
 SRC_DIR  = ./../src
-TARGET   = test_vec test_utility test_camera test_scene test_tracer test_object test_random test_bvh
+TESTS  = $(shell ls *.cpp)
+TARGET = $(TESTS:.cpp=)
 
 all: $(TARGET)
 
@@ -29,7 +30,8 @@ test_tracer: test_tracer.cpp $(SRC_DIR)/tracer.cpp $(SRC_DIR)/vec.cpp \
 	$(SRC_DIR)/ray.cpp $(SRC_DIR)/object.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-test_bvh: test_bvh.cpp $(SRC_DIR)/bvh.cpp $(SRC_DIR)/vec.cpp $(SRC_DIR)/object.cpp
+test_bvh: test_bvh.cpp $(SRC_DIR)/bvh.cpp $(SRC_DIR)/vec.cpp \
+	$(SRC_DIR)/object.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 test_random: test_random.cpp $(SRC_DIR)/random.cpp
