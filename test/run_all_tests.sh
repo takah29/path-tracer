@@ -1,10 +1,37 @@
-clang++ -std=c++1z test_camera.cpp; ./a.out
-clang++ -std=c++1z test_object.cpp; ./a.out
-clang++ -std=c++1z test_scene.cpp; ./a.out
-clang++ -std=c++1z test_tracer.cpp; ./a.out
-clang++ -std=c++1z test_utility.cpp; ./a.out
-clang++ -std=c++1z test_vec.cpp; ./a.out
-clang++ -std=c++1z test_bvh.cpp; ./a.out
-clang++ -std=c++1z test_random.cpp; ./a.out
-clang++ -std=c++1z test_mapping.cpp; ./a.out
+make
+
+echo "------------------"
+echo "Run all test code.\n"
+
+echo "run test_vec"
+./test_vec
+echo "---------------"
+
+echo "run test_utility"
+./test_utility
+echo "---------------"
+
+echo "run test_tracer"
+./test_tracer
+echo "---------------"
+
+echo "run test_scene"
+./test_scene
+echo "---------------"
+
+echo "run test_random"
+./test_random
+echo "---------------"
+
+echo "run test_object"
+./test_object
+echo "---------------"
+
+echo "run test_camera"
+./test_camera
+echo "---------------"
+
+echo "run test_bvh"
+./test_bvh
+echo "---------------"
 
