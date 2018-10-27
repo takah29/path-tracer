@@ -1,5 +1,5 @@
-CC       = clang++
-CFLAGS   = -std=c++1z -fopenmp=libiomp5 -Ofast -mtune=native -march=native -MMD -MP
+CXX      = clang++
+CXXFLAGS = -std=c++1z -fopenmp=libiomp5 -Ofast -mtune=native -march=native -MMD -MP
 LDFLAGS  = -fopenmp=libiomp5
 LIBS     = 
 INCLUDE  =
@@ -13,13 +13,13 @@ DEPENDS  = $(OBJS:.o=.d)
 all: $(TARGET)
 
 $(TARGET): $(OBJS) $(LIBS)
-	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+	$(CXX) -o $@ $(OBJS) $(LDFLAGS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp 
 	@if [ ! -d $(OBJ_DIR) ]; \
 		then echo "mkdir -p $(OBJ_DIR)"; mkdir -p $(OBJ_DIR); \
 	fi
-	$(CC) $(CFLAGS) $(INCLUDE) -o $@ -c $< 
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ -c $< 
 
 clean:
 	$(RM) $(OBJS) $(TARGET) $(DEPENDS)
@@ -28,3 +28,4 @@ clean:
 -include $(DEPENDS)
 
 .PHONY: all clean
+
