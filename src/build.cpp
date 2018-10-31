@@ -103,7 +103,7 @@ bool build_3(Scene& scene) {
     scene.add_object(plane_ptr);
 
     SmoothSurface* surface = new SmoothSurface(&materials["gray"]);
-    if (!from_ply_file("./models/bunny/reconstruction/bun_zipper.ply", surface)) return false;
+    if (!load_ply_file("./models/bunny/reconstruction/bun_zipper.ply", surface)) return false;
     surface->scale(2. / (surface->bbox.corner1.x - surface->bbox.corner0.x));
     surface->move(Vec(-surface->bbox.center.x, -surface->bbox.corner0.y, -surface->bbox.center.z));
     Object* surface_ptr = static_cast<Object*>(surface);
@@ -149,11 +149,40 @@ bool build_4(Scene& scene) {
     scene.add_object(box_ptr);
 
     SmoothSurface* surface = new SmoothSurface(&materials["green"]);
-    if (!from_ply_file("./models/dragon_recon/dragon_vrip_res2.ply", surface)) return false;
+    if (!load_ply_file("./models/dragon_recon/dragon_vrip_res2.ply", surface)) return false;
     surface->scale(2. / (surface->bbox.corner1.x - surface->bbox.corner0.x));
     surface->move(Vec(-surface->bbox.center.x, -surface->bbox.corner0.y, -surface->bbox.center.z));
     Object* surface_ptr = static_cast<Object*>(surface);
     scene.add_object(surface_ptr);
+
+    return true;
+}
+
+// hdr file scene
+bool build_5(Scene& scene) {
+    Vec eye(4.0, 1.2, 0.3), lookat(0.0, 2.8, 0.0);
+    Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+
+    // IBL
+    Image* image_ptr = new Image();
+    load_hdr_image("hdr_image/MonValley_G_DirtRoad_3k.hdr", *image_ptr);
+    image_ptr->flip();
+    Mapping* mapping_ptr = new SphericalMap(45.);
+    Texture* ibl_ptr(new ImageTexture(image_ptr, mapping_ptr));
+
+    scene.set_camera(pinhole_ptr);
+    scene.set_ibl(ibl_ptr);
+
+    std::vector<Object*> tmp_objects;
+    if (!load_obj_file("./models/sponza/sponza.obj", tmp_objects)) return false;
+    for (Object* obj_ptr : tmp_objects) {
+        obj_ptr->set_material(&materials["gray"]);
+        scene.add_object(obj_ptr);
+    };
+
+    // Object* sphere_ptr;
+    // sphere_ptr = new Sphere(1.0, Vec(-1.2, 10.0, 1.0), &materials["week_light_1"]);
+    // scene.add_object(sphere_ptr);
 
     return true;
 }
