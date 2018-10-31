@@ -16,6 +16,7 @@ struct Surface : public Object {
     std::vector<Vec> vertices;
     std::vector<std::tuple<int, int, int>> triangles;
     std::vector<BBox> triangle_bboxes;
+
     BVH bvh;
 
     Surface();
@@ -29,6 +30,7 @@ struct Surface : public Object {
 
     void scale(const double x);
     void move(const Vec x);
+    void set_material(Material *material_ptr);
     void compute_bboxes();
     void construct();
     std::vector<int> traverse(const Ray &ray);

@@ -34,13 +34,27 @@ void Surface::move(const Vec x) {
     }
 }
 
+void Surface::set_material(Material *material_ptr) { this->material_ptr = material_ptr; }
+
 void Surface::compute_bboxes() {
+    double min_x = INF, min_y = INF, min_z = INF;
+    double max_x = -INF, max_y = -INF, max_z = -INF;
     for (size_t i = 0; i < triangles.size(); i++) {
         const auto & [ idx0, idx1, idx2 ] = triangles[i];
         const Vec &v0(vertices[idx0]), &v1(vertices[idx1]), &v2(vertices[idx2]);
         BBox bbox(min(min(v0, v1), v2) - EPS, max(max(v0, v1), v2) + EPS);
         triangle_bboxes.push_back(bbox);
+        if (bbox.corner0.x < min_x) min_x = bbox.corner0.x;
+        if (bbox.corner0.y < min_y) min_y = bbox.corner0.y;
+        if (bbox.corner0.z < min_z) min_z = bbox.corner0.z;
+        if (bbox.corner1.x > max_x) max_x = bbox.corner1.x;
+        if (bbox.corner1.y > max_y) max_y = bbox.corner1.y;
+        if (bbox.corner1.z > max_z) max_z = bbox.corner1.z;
     }
+    Vec corner0(min_x - EPS, min_y - EPS, min_z - EPS);
+    Vec corner1(max_x + EPS, max_y + EPS, max_z + EPS);
+    this->bbox = BBox(corner0, corner1);
+    this->center = (corner0 + corner1) / 2.0;
 }
 
 void Surface::construct() {
