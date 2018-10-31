@@ -33,6 +33,18 @@ std::vector<std::string> split(const std::string &s, const char delim) {
     return result;
 }
 
+std::vector<std::string> split_reg(const std::string &s, const std::string regex_delim = " +") {
+    std::vector<std::string> v;
+
+    std::regex separator{regex_delim};
+    auto ite = std::sregex_token_iterator(s.begin(), s.end(), separator, -1);
+    auto end = std::sregex_token_iterator();
+    while (ite != end) {
+        v.push_back(*ite++);  // 分割文字列を格納
+    }
+    return v;
+}
+
 std::vector<double> linspace(const double start, const double end, const int n,
                              const bool endpoint) {
     double delta = endpoint == true ? (end - start) / (n - 1) : (end - start) / n;

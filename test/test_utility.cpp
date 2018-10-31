@@ -94,6 +94,54 @@ BOOST_AUTO_TEST_CASE(test_correct_split) {
     BOOST_CHECK_EQUAL(result.size(), 2);
     BOOST_CHECK_EQUAL(result[0], "abc");
     BOOST_CHECK_EQUAL(result[1], "def");
+
+    s = "abc  def";
+    result = split(s, ' ');
+    BOOST_CHECK_EQUAL(result.size(), 3);
+    BOOST_CHECK_EQUAL(result[0], "abc");
+    BOOST_CHECK_EQUAL(result[1], "");
+    BOOST_CHECK_EQUAL(result[2], "def");
+}
+
+BOOST_AUTO_TEST_CASE(test_correct_split_reg) {
+    std::string s = "abc,def";
+
+    std::vector<std::string> result;
+    result = split_reg(s, ",");
+    BOOST_CHECK_EQUAL(result.size(), 2);
+    BOOST_CHECK_EQUAL(result[0], "abc");
+    BOOST_CHECK_EQUAL(result[1], "def");
+
+    s = "abc,def,";
+    result = split_reg(s, ",");
+    BOOST_CHECK_EQUAL(result.size(), 2);
+    BOOST_CHECK_EQUAL(result[0], "abc");
+    BOOST_CHECK_EQUAL(result[1], "def");
+
+    s = "abc,,def";
+    result = split_reg(s, ",");
+    BOOST_CHECK_EQUAL(result.size(), 3);
+    BOOST_CHECK_EQUAL(result[0], "abc");
+    BOOST_CHECK_EQUAL(result[1], "");
+    BOOST_CHECK_EQUAL(result[2], "def");
+
+    s = "abc def";
+    result = split_reg(s, " ");
+    BOOST_CHECK_EQUAL(result.size(), 2);
+    BOOST_CHECK_EQUAL(result[0], "abc");
+    BOOST_CHECK_EQUAL(result[1], "def");
+
+    s = "abc  def";
+    result = split_reg(s, " +");
+    BOOST_CHECK_EQUAL(result.size(), 2);
+    BOOST_CHECK_EQUAL(result[0], "abc");
+    BOOST_CHECK_EQUAL(result[1], "def");
+
+    s = "abc def ";
+    result = split_reg(s, " +");
+    BOOST_CHECK_EQUAL(result.size(), 2);
+    BOOST_CHECK_EQUAL(result[0], "abc");
+    BOOST_CHECK_EQUAL(result[1], "def");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
