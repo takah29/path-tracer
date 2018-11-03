@@ -15,6 +15,19 @@ void Image::flip() {
     color_vec = tmp_color_vec;
 }
 
+std::string strip(std::string &s, const char rm_char) {
+    int pos_s = 0, pos_e = s.size() - 1;
+    while (true) {
+        if (s[pos_s] != rm_char) break;
+        pos_s++;
+    }
+    while (true) {
+        if (s[pos_e] != rm_char) break;
+        pos_e--;
+    }
+    return s.substr(pos_s, pos_e - pos_s + 1);
+}
+
 std::vector<std::string> split(const std::string &s, const char delim) {
     std::vector<std::string> result;
     std::string elem;
@@ -33,7 +46,7 @@ std::vector<std::string> split(const std::string &s, const char delim) {
     return result;
 }
 
-std::vector<std::string> split_reg(const std::string &s, const std::string regex_delim = " +") {
+std::vector<std::string> split_reg(const std::string &s, const std::string regex_delim) {
     std::vector<std::string> v;
 
     std::regex separator{regex_delim};

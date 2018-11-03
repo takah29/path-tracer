@@ -1,7 +1,9 @@
 #ifndef _VEC_H_
 #define _VEC_H_
 
+#include <cmath>
 #include <algorithm>
+#include <ostream>
 #include "constant.hpp"
 
 using Point2D = std::pair<double, double>;
@@ -73,7 +75,7 @@ inline Vec operator*(const double lhs, const Vec &rhs) { return rhs * lhs; }
 
 inline double dot(const Vec &v1, const Vec &v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z; }
 
-inline double norm(const Vec &v) { return sqrt(dot(v, v)); }
+inline double norm(const Vec &v) { return std::sqrt(dot(v, v)); }
 
 inline Vec normalize(const Vec &v) { return v / norm(v); }
 

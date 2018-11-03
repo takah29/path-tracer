@@ -9,6 +9,10 @@
 #include "surface.hpp"
 #include "utility.hpp"
 
+std::tuple<int, int, int> get_vertex_elements(std::string s);
+std::tuple<int, int, int> to_index(const std::tuple<int, int, int>& vertex_elements,
+                                            const int n_vertices);
+bool load_objmtl_file(const std::string file_path, std::map<std::string, std::string>& materials);
 bool load_obj_file(const std::string file_path, std::vector<Object*>& objects);
 
 template <typename S>
@@ -33,9 +37,9 @@ bool load_ply_file(const std::string file_path, S* surface) {
     }
 
     std::vector<std::string> sep_s;
-    size_t n_vertices;
+    size_t n_vertices = 0;
     std::vector<std::string> vertex_property;
-    size_t n_triangles;
+    size_t n_triangles = 0;
     std::vector<std::string> triangle_property;
     std::string type;
     while (getline(infile, line)) {
@@ -92,9 +96,9 @@ bool load_ply_file(const std::string file_path, S* surface) {
         // 頂点数4以上のポリゴンは除外する
         n_vert = stoi(sep_s[0]);
         if (n_vert == 3) {
-            idx0 = stoi(sep_s[1]);
-            idx1 = stoi(sep_s[2]);
-            idx2 = stoi(sep_s[3]);
+            idx0 = std::stoi(sep_s[1]);
+            idx1 = std::stoi(sep_s[2]);
+            idx2 = std::stoi(sep_s[3]);
             surface->triangles.push_back(std::make_tuple(idx0, idx1, idx2));
         }
     }

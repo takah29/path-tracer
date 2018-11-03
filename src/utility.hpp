@@ -2,9 +2,9 @@
 #define _UTILITY_H_
 
 #include <iostream>
+#include <regex>
 #include <string>
 #include <vector>
-#include <regex>
 #include "vec.hpp"
 
 // デバッグ用print関数
@@ -50,8 +50,9 @@ struct Image {
     }
 };
 
-std::vector<std::string> split(const std::string &s, const char delim);
-std::vector<std::string> split_reg(const std::string &s, const std::string regex_delim);
+std::string strip(std::string &s, const char rm_char = ' ');
+std::vector<std::string> split(const std::string &s, const char delim = ' ');
+std::vector<std::string> split_reg(const std::string &s, const std::string regex_delim = " +");
 
 inline double clamp(const double x, const double min = 0.0, const double max = 1.0) {
     if (x > max) {
