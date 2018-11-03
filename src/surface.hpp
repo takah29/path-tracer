@@ -16,6 +16,9 @@ struct Surface : public Object {
     std::vector<Vec> vertices;
     std::vector<std::tuple<int, int, int>> triangles;
     std::vector<BBox> triangle_bboxes;
+    std::vector<std::pair<double, double>> uv_coordinates;
+    std::vector<std::tuple<int, int, int>> triangle_uv_coordinates;
+    bool has_uv;
     BVH bvh;
 
     Surface();
@@ -29,10 +32,13 @@ struct Surface : public Object {
 
     void scale(const double x);
     void move(const Vec x);
+    void set_material(Material *material_ptr);
     void compute_bboxes();
     void construct();
     std::vector<int> traverse(const Ray &ray);
 
+    void get_uv_coordinates(const int triangle_idx, Hitpoint &hitpoint, const double &beta,
+                            const double &gamma) const;
     bool intersect_triangle(const int &triangle_idx, const Ray &ray, Hitpoint &hitpoint) const;
     bool intersect(const Ray &ray, Hitpoint &hitpoint) const;
 };

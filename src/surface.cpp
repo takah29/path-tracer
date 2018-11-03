@@ -1,11 +1,14 @@
 #include "surface.hpp"
 
-Surface::Surface() : Object(), vertices(0), triangles(0), triangle_bboxes(0) {}
+Surface::Surface()
+    : Object(), vertices(0), triangles(0), triangle_bboxes(0), uv_coordinates(0), has_uv(false) {}
 Surface::Surface(Material *material_ptr)
     : Object(Vec(0.0, 0.0, 0.0), BBox(), material_ptr),
       vertices(0),
       triangles(0),
-      triangle_bboxes(0) {
+      triangle_bboxes(0),
+      uv_coordinates(0),
+      has_uv(false) {
     this->bbox.empty();
 }
 Surface::~Surface() {}
@@ -34,13 +37,27 @@ void Surface::move(const Vec x) {
     }
 }
 
+void Surface::set_material(Material *material_ptr) { this->material_ptr = material_ptr; }
+
 void Surface::compute_bboxes() {
+    double min_x = INF, min_y = INF, min_z = INF;
+    double max_x = -INF, max_y = -INF, max_z = -INF;
     for (size_t i = 0; i < triangles.size(); i++) {
-        const auto & [ idx0, idx1, idx2 ] = triangles[i];
+        const auto &[idx0, idx1, idx2] = triangles[i];
         const Vec &v0(vertices[idx0]), &v1(vertices[idx1]), &v2(vertices[idx2]);
         BBox bbox(min(min(v0, v1), v2) - EPS, max(max(v0, v1), v2) + EPS);
         triangle_bboxes.push_back(bbox);
+        if (bbox.corner0.x < min_x) min_x = bbox.corner0.x;
+        if (bbox.corner0.y < min_y) min_y = bbox.corner0.y;
+        if (bbox.corner0.z < min_z) min_z = bbox.corner0.z;
+        if (bbox.corner1.x > max_x) max_x = bbox.corner1.x;
+        if (bbox.corner1.y > max_y) max_y = bbox.corner1.y;
+        if (bbox.corner1.z > max_z) max_z = bbox.corner1.z;
     }
+    Vec corner0(min_x - EPS, min_y - EPS, min_z - EPS);
+    Vec corner1(max_x + EPS, max_y + EPS, max_z + EPS);
+    this->bbox = BBox(corner0, corner1);
+    this->center = (corner0 + corner1) / 2.0;
 }
 
 void Surface::construct() {
@@ -53,15 +70,27 @@ void Surface::construct() {
 
 std::vector<int> Surface::traverse(const Ray &ray) { return bvh.traverse(ray); }
 
+void Surface::get_uv_coordinates(const int triangle_idx, Hitpoint &hitpoint, const double &beta,
+                                 const double &gamma) const {
+    const auto &[idx0, idx1, idx2] = triangles[triangle_idx];
+    Vec coef_vec((1.0 - beta - gamma), beta, gamma);
+    double u = dot(coef_vec, Vec(uv_coordinates[idx0].first, uv_coordinates[idx1].first,
+                                 uv_coordinates[idx2].first));
+    double v = dot(coef_vec, Vec(uv_coordinates[idx0].second, uv_coordinates[idx1].second,
+                                 uv_coordinates[idx2].second));
+    hitpoint.u = u;
+    hitpoint.v = v;
+}
+
 bool Surface::intersect_triangle(const int &triangle_idx, const Ray &ray,
                                  Hitpoint &hitpoint) const {
-    const auto & [ idx0, idx1, idx2 ] = triangles[triangle_idx];
+    const auto &[idx0, idx1, idx2] = triangles[triangle_idx];
     const Vec &v0(vertices[idx0]), &v1(vertices[idx1]), &v2(vertices[idx2]);
 
-    auto[a, e, i] = v0 - v1;
-    auto[b, f, j] = v0 - v2;
-    auto[c, g, k] = ray.dir;
-    auto[d, h, l] = v0 - ray.org;
+    auto [a, e, i] = v0 - v1;
+    auto [b, f, j] = v0 - v2;
+    auto [c, g, k] = ray.dir;
+    auto [d, h, l] = v0 - ray.org;
 
     double m = f * k - g * j, n = h * k - g * l, p = f * l - h * j;
     double q = g * i - e * k, s = e * j - f * i;
@@ -97,6 +126,7 @@ bool Surface::intersect_triangle(const int &triangle_idx, const Ray &ray,
     hitpoint.distance = t;
     hitpoint.position = ray.org + t * ray.dir;
     get_normal(triangle_idx, hitpoint, beta, gamma);
+    if (has_uv) get_uv_coordinates(triangle_idx, hitpoint, beta, gamma);
 
     return true;
 }
@@ -158,7 +188,7 @@ void SmoothSurface::compute_normals() {
 
     vertex_normals = std::vector<Vec>(vertices.size(), Vec(0.0, 0.0, 0.0));
     for (size_t i = 0; i < triangles.size(); i++) {
-        const auto & [ idx0, idx1, idx2 ] = triangles[i];
+        const auto &[idx0, idx1, idx2] = triangles[i];
         Vec &v0 = vertices[idx0], &v1 = vertices[idx1], &v2 = vertices[idx2];
 
         normal = cross(v1 - v0, v2 - v0);
@@ -178,7 +208,7 @@ void SmoothSurface::compute_normals() {
 
 void SmoothSurface::get_normal(const int triangle_idx, Hitpoint &hitpoint, const double &beta,
                                const double &gamma) const {
-    const auto & [ idx0, idx1, idx2 ] = triangles[triangle_idx];
+    const auto &[idx0, idx1, idx2] = triangles[triangle_idx];
     Vec normal((1.0 - beta - gamma) * vertex_normals[idx0] + beta * vertex_normals[idx1] +
                gamma * vertex_normals[idx2]);
     normal.normalize();

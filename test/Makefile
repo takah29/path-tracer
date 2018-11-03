@@ -1,5 +1,5 @@
 CXX      = clang++
-CXXFLAGS = -std=c++1z
+CXXFLAGS = -std=c++17
 SRC_DIR  = ./../src
 TESTS  = $(shell ls *.cpp)
 TARGET = $(TESTS:.cpp=)
@@ -35,6 +35,12 @@ test_bvh: test_bvh.cpp $(SRC_DIR)/bvh.cpp $(SRC_DIR)/vec.cpp \
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 test_random: test_random.cpp $(SRC_DIR)/random.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+test_loader: test_loader.cpp $(SRC_DIR)/loader.cpp $(SRC_DIR)/vec.cpp \
+	$(SRC_DIR)/utility.cpp $(SRC_DIR)/material.cpp $(SRC_DIR)/texture.cpp \
+	$(SRC_DIR)/surface.cpp $(SRC_DIR)/lattice_noise.cpp $(SRC_DIR)/object.cpp \
+	$(SRC_DIR)/bvh.cpp $(SRC_DIR)/ray.cpp $(SRC_DIR)/random.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 clean:

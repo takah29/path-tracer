@@ -14,5 +14,6 @@ bool build_1(Scene& scene);
 bool build_2(Scene& scene);
 bool build_3(Scene& scene);
 bool build_4(Scene& scene);
+bool build_5(Scene& scene);
 
 #endif

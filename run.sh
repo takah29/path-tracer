@@ -6,5 +6,5 @@ rm bunny.tar.gz
 cd ..
 
 make
-./main
+./main -w 320 -h 240 -s 2 -ss 4
 

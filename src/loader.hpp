@@ -9,15 +9,21 @@
 #include "surface.hpp"
 #include "utility.hpp"
 
+std::tuple<int, int, int> get_vertex_elements(std::string s);
+std::tuple<int, int, int> to_index(const std::tuple<int, int, int>& vertex_elements,
+                                            const int n_vertices);
+bool load_objmtl_file(const std::string file_path, std::map<std::string, std::string>& materials);
+bool load_obj_file(const std::string file_path, std::vector<Object*>& objects);
+
 template <typename S>
-bool from_ply_file(const std::string file_path, S* surface) {
+bool load_ply_file(const std::string file_path, S* surface) {
     std::ifstream infile(file_path);
     std::string line;
 
     // ファイルフォーマットの確認
     getline(infile, line);
     if (line != "ply") {
-        std::cout << "The file is not ply file." << std::endl;
+        std::cout << "The file is not ply format." << std::endl;
         return false;
     }
 
@@ -31,20 +37,19 @@ bool from_ply_file(const std::string file_path, S* surface) {
     }
 
     std::vector<std::string> sep_s;
-    size_t n_vertices;
+    size_t n_vertices = 0;
     std::vector<std::string> vertex_property;
-    size_t n_triangles;
+    size_t n_triangles = 0;
     std::vector<std::string> triangle_property;
     std::string type;
     while (getline(infile, line)) {
-        sep_s = split(line, ' ');
+        sep_s = split_reg(line, " +");
         keyword = sep_s[0];
 
         if (keyword == "end_header") break;
+        if (keyword == "comment") continue;
 
-        if (keyword == "comment") {
-            continue;
-        } else if (keyword == "element") {
+        if (keyword == "element") {
             type = sep_s[1];
             if (type == "vertex") {
                 n_vertices = stoi(sep_s[2]);
@@ -66,7 +71,7 @@ bool from_ply_file(const std::string file_path, S* surface) {
     // 頂点の読み込み
     for (size_t i = 0; i < n_vertices; i++) {
         getline(infile, line);
-        sep_s = split(line, ' ');
+        sep_s = split_reg(line, " +");
 
         // 頂点座標のみ処理
         double x = stod(sep_s[0]), y = stod(sep_s[1]), z = stod(sep_s[2]);
@@ -86,14 +91,14 @@ bool from_ply_file(const std::string file_path, S* surface) {
     int idx0, idx1, idx2;
     for (size_t i = 0; i < n_triangles; i++) {
         getline(infile, line);
-        sep_s = split(line, ' ');
+        sep_s = split_reg(line, " +");
 
         // 頂点数4以上のポリゴンは除外する
         n_vert = stoi(sep_s[0]);
         if (n_vert == 3) {
-            idx0 = stoi(sep_s[1]);
-            idx1 = stoi(sep_s[2]);
-            idx2 = stoi(sep_s[3]);
+            idx0 = std::stoi(sep_s[1]);
+            idx1 = std::stoi(sep_s[2]);
+            idx2 = std::stoi(sep_s[3]);
             surface->triangles.push_back(std::make_tuple(idx0, idx1, idx2));
         }
     }
@@ -101,12 +106,12 @@ bool from_ply_file(const std::string file_path, S* surface) {
     infile.close();
 
     // バウンディングボックス設定
-    Vec corner0(min_x - EPS, min_y - EPS, min_z - EPS);
-    Vec corner1(max_x + EPS, max_y + EPS, max_z + EPS);
-    surface->bbox.set_corner(corner0, corner1);
+    // Vec corner0(min_x - EPS, min_y - EPS, min_z - EPS);
+    // Vec corner1(max_x + EPS, max_y + EPS, max_z + EPS);
+    // surface->bbox.set_corner(corner0, corner1);
 
     // 中心座標の設定
-    surface->center = (corner0 + corner1) / 2.0;
+    // surface->center = (corner0 + corner1) / 2.0;
 
     // 法線の計算
     surface->compute_normals();

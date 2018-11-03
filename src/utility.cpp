@@ -15,6 +15,17 @@ void Image::flip() {
     color_vec = tmp_color_vec;
 }
 
+std::string strip(std::string &s, const std::string trim_str) {
+    std::string result;
+
+    std::string::size_type left = s.find_first_not_of(trim_str);
+    if (left != std::string::npos) {
+        std::string::size_type right = s.find_last_not_of(trim_str);
+        result = s.substr(left, right - left + 1);
+    }
+    return result;
+}
+
 std::vector<std::string> split(const std::string &s, const char delim) {
     std::vector<std::string> result;
     std::string elem;
@@ -31,6 +42,18 @@ std::vector<std::string> split(const std::string &s, const char delim) {
     result.push_back(elem);
 
     return result;
+}
+
+std::vector<std::string> split_reg(const std::string &s, const std::string regex_delim) {
+    std::vector<std::string> v;
+
+    std::regex separator{regex_delim};
+    auto ite = std::sregex_token_iterator(s.begin(), s.end(), separator, -1);
+    auto end = std::sregex_token_iterator();
+    while (ite != end) {
+        v.push_back(*ite++);  // 分割文字列を格納
+    }
+    return v;
 }
 
 std::vector<double> linspace(const double start, const double end, const int n,
