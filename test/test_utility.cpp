@@ -66,6 +66,29 @@ BOOST_AUTO_TEST_CASE(test_correct_save_and_load_ppm_file) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(test_correct_strip) {
+    std::string s(" abc,def");
+    std::string result = strip(s);
+    BOOST_CHECK_EQUAL(result, "abc,def");
+
+    s = "abc,def ";
+    result = strip(s);
+    BOOST_CHECK_EQUAL(result, "abc,def");
+
+    s = " abc,def ";
+    result = strip(s);
+    BOOST_CHECK_EQUAL(result, "abc,def");
+
+    s = "   abc,def   ";
+    result = strip(s);
+    BOOST_CHECK_EQUAL(result, "abc,def");
+
+    s = ",abc,def,";
+    result = strip(s, ',');
+    BOOST_CHECK_EQUAL(result, "abc,def");
+
+}
+
 BOOST_AUTO_TEST_CASE(test_correct_split) {
     std::string s = "abc,def";
 
