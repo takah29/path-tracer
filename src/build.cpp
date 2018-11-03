@@ -158,7 +158,7 @@ bool build_4(Scene& scene) {
     return true;
 }
 
-// hdr file scene
+// obj file scene
 bool build_5(Scene& scene) {
     Vec eye(4.0, 1.2, 0.3), lookat(0.0, 2.8, 0.0);
     Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
@@ -175,7 +175,7 @@ bool build_5(Scene& scene) {
     scene.set_ibl(ibl_ptr);
 
     std::vector<Object*> tmp_objects;
-    if (!load_obj_file("./models/bunny.obj", tmp_objects)) return false;
+    if (!load_obj_file("./models/sponza/sponza.obj", tmp_objects)) return false;
     for (Object* obj_ptr : tmp_objects) {
         scene.add_object(obj_ptr);
     };

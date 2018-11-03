@@ -187,8 +187,8 @@ bool load_objmtl_file(const std::string file_path, std::map<std::string, Materia
             materials[material_name] = Material();
         } else if (sep_s[0] == "\tKd") {
             sscanf(line.data(), "\tKd %lf %lf %lf", &val0, &val1, &val2);
-            // texture_ptr = new ConstantTexture(Color(val0, val1, val2));
-            texture_ptr = new ConstantTexture(RED);
+            print(val0, val1,val2);
+            texture_ptr = new ConstantTexture(Color(val0, val1, val2));
             materials[material_name].color_ptr = texture_ptr;
         }
     }
