@@ -84,9 +84,8 @@ BOOST_AUTO_TEST_CASE(test_correct_strip) {
     BOOST_CHECK_EQUAL(result, "abc,def");
 
     s = ",abc,def,";
-    result = strip(s, ',');
+    result = strip(s, ",");
     BOOST_CHECK_EQUAL(result, "abc,def");
-
 }
 
 BOOST_AUTO_TEST_CASE(test_correct_split) {
