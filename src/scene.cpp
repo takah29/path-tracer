@@ -53,7 +53,7 @@ void Scene::render(const std::map<std::string, std::string> &params) {
     // 空間データ構造の構築
     construct();
 
-#pragma omp parallel for schedule(dynamic, 1)
+#pragma omp parallel for schedule(dynamic, 1) num_threads(8)
     for (int r = 0; r < vp.height_res; r++) {
         if (r % 10 == 0) {
             std::cout << "processing line " << r << std::endl;
@@ -70,7 +70,6 @@ void Scene::render(const std::map<std::string, std::string> &params) {
                         vp.pixel_size * (c - 0.5 * vp.width_res + (j + 0.5) / super_samples),
                         vp.pixel_size * (0.5 * vp.height_res - r - 1 + (i + 0.5) / super_samples));
                     Ray ray(camera_ptr->eye, camera_ptr->ray_direction(pp));
-
                     for (int k = 0; k < samples; k++) {
                         accumulated_radiance += path_trace(ray, objects, bvh, ibl_ptr, rnd, 0);
                         // accumulated_radiance += ray_trace(ray, objects, lights, bvh);

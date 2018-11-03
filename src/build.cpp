@@ -137,7 +137,7 @@ bool build_4(Scene& scene) {
 
     // IBL
     Image* image_ptr = new Image();
-    load_hdr_image("hdr_image/kiara_6_afternoon_4k.hdr", *image_ptr);
+    load_hdr_image("hdr_image/Tokyo_BigSight_3k.hdr", *image_ptr);
     image_ptr->flip();
     Mapping* mapping_ptr = new SphericalMap(45.);
     Texture* ibl_ptr(new ImageTexture(image_ptr, mapping_ptr));
@@ -145,10 +145,10 @@ bool build_4(Scene& scene) {
     scene.set_camera(pinhole_ptr);
     scene.set_ibl(ibl_ptr);
 
-    Object* box_ptr(new Box(Vec(-3.0, -0.1, -3.0), Vec(3.0, 0.0, 3.0), &materials["gray"]));
+    Object* box_ptr(new Box(Vec(-3.0, -0.1, -3.0), Vec(3.0, 0.0, 3.0), &materials["checker"]));
     scene.add_object(box_ptr);
 
-    SmoothSurface* surface = new SmoothSurface(&materials["green"]);
+    SmoothSurface* surface = new SmoothSurface(&materials["specular"]);
     if (!load_ply_file("./models/dragon_recon/dragon_vrip_res2.ply", surface)) return false;
     surface->scale(2. / (surface->bbox.corner1.x - surface->bbox.corner0.x));
     surface->move(Vec(-surface->bbox.center.x, -surface->bbox.corner0.y, -surface->bbox.center.z));
@@ -169,6 +169,7 @@ bool build_5(Scene& scene) {
     image_ptr->flip();
     Mapping* mapping_ptr = new SphericalMap(45.);
     Texture* ibl_ptr(new ImageTexture(image_ptr, mapping_ptr));
+    // Texture* ibl_ptr(new ConstantTexture(Color(BLACK)));
 
     scene.set_camera(pinhole_ptr);
     scene.set_ibl(ibl_ptr);
@@ -176,7 +177,6 @@ bool build_5(Scene& scene) {
     std::vector<Object*> tmp_objects;
     if (!load_obj_file("./models/sponza/sponza.obj", tmp_objects)) return false;
     for (Object* obj_ptr : tmp_objects) {
-        obj_ptr->set_material(&materials["gray"]);
         scene.add_object(obj_ptr);
     };
 
