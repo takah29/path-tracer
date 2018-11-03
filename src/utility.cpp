@@ -15,17 +15,15 @@ void Image::flip() {
     color_vec = tmp_color_vec;
 }
 
-std::string strip(std::string &s, const char rm_char) {
-    int pos_s = 0, pos_e = s.size() - 1;
-    while (true) {
-        if (s[pos_s] != rm_char) break;
-        pos_s++;
+std::string strip(std::string &s, const std::string trim_str) {
+    std::string result;
+
+    std::string::size_type left = s.find_first_not_of(trim_str);
+    if (left != std::string::npos) {
+        std::string::size_type right = s.find_last_not_of(trim_str);
+        result = s.substr(left, right - left + 1);
     }
-    while (true) {
-        if (s[pos_e] != rm_char) break;
-        pos_e--;
-    }
-    return s.substr(pos_s, pos_e - pos_s + 1);
+    return result;
 }
 
 std::vector<std::string> split(const std::string &s, const char delim) {
