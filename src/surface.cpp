@@ -1,14 +1,14 @@
 #include "surface.hpp"
 
 Surface::Surface()
-    : Object(), vertices(0), triangles(0), triangle_bboxes(0), uv_coordinates(0), has_uv(false) {}
+    : Object(), vertices(0), triangles(0), triangle_bboxes(0), uv_coordinates(0), texture_flag(false) {}
 Surface::Surface(Material *material_ptr)
     : Object(Vec(0.0, 0.0, 0.0), BBox(), material_ptr),
       vertices(0),
       triangles(0),
       triangle_bboxes(0),
       uv_coordinates(0),
-      has_uv(false) {
+      texture_flag(false) {
     this->bbox.empty();
 }
 Surface::~Surface() {}
@@ -126,7 +126,7 @@ bool Surface::intersect_triangle(const int &triangle_idx, const Ray &ray,
     hitpoint.distance = t;
     hitpoint.position = ray.org + t * ray.dir;
     get_normal(triangle_idx, hitpoint, beta, gamma);
-    if (has_uv) get_uv_coordinates(triangle_idx, hitpoint, beta, gamma);
+    if (texture_flag) get_uv_coordinates(triangle_idx, hitpoint, beta, gamma);
 
     return true;
 }

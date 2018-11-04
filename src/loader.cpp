@@ -1,4 +1,5 @@
 #include "loader.hpp"
+#include "wrapper.hpp"
 
 bool load_ply_file(const std::string file_path, Surface* surface) {
     std::ifstream infile(file_path);
@@ -139,35 +140,37 @@ std::tuple<int, int, int> get_vertex_elements(std::string s) {
 }
 
 std::tuple<int, int, int> to_index(const std::tuple<int, int, int>& vertex_elements,
-                                   const int offset_idx) {
-    int v_idx;
-    std::tuple<int, int, int> positive_elements = vertex_elements;
+                                   const int v_offset_idx, const int vt_offset_idx,
+                                   const int vn_offset_idx) {
+    int idx;
+    std::tuple<int, int, int> result = vertex_elements;
 
-    v_idx = std::get<0>(vertex_elements);
-    if (v_idx > 0) {
-        std::get<0>(positive_elements) = v_idx - offset_idx - 1;
-    } else if (v_idx < 0) {
-        std::get<0>(positive_elements) = offset_idx + v_idx;
+    idx = std::get<0>(vertex_elements);
+    if (idx > 0) {
+        std::get<0>(result) = idx - v_offset_idx - 1;
+    } else if (idx < 0) {
+        std::get<0>(result) = v_offset_idx + idx;
     }
 
-    v_idx = std::get<1>(vertex_elements);
-    if (v_idx > 0) {
-        std::get<1>(positive_elements) = v_idx - offset_idx - 1;
-    } else if (v_idx < 0) {
-        std::get<1>(positive_elements) = offset_idx + v_idx;
+    idx = std::get<1>(vertex_elements);
+    if (idx > 0) {
+        std::get<1>(result) = idx - vt_offset_idx - 1;
+    } else if (idx < 0) {
+        std::get<1>(result) = vt_offset_idx + idx;
     }
 
-    v_idx = std::get<2>(vertex_elements);
-    if (v_idx > 0) {
-        std::get<2>(positive_elements) = v_idx - offset_idx - 1;
-    } else if (v_idx < 0) {
-        std::get<2>(positive_elements) = offset_idx + v_idx;
+    idx = std::get<2>(vertex_elements);
+    if (idx > 0) {
+        std::get<2>(result) = idx - vn_offset_idx - 1;
+    } else if (idx < 0) {
+        std::get<2>(result) = vn_offset_idx + idx;
     }
 
-    return positive_elements;
+    return result;
 }
 
 bool load_objmtl_file(const std::string file_path, std::map<std::string, Material>& materials) {
+    print("load mtl file...");
     std::ifstream infile(file_path);
     std::string line;
 
@@ -179,16 +182,23 @@ bool load_objmtl_file(const std::string file_path, std::map<std::string, Materia
     Texture* texture_ptr;
     while (!infile.eof()) {
         getline(infile, line);
+        line = strip(line);
         if (line == "" || line[0] == '#') continue;
 
         sep_s = split_reg(line, " +");
         if (sep_s[0] == "newmtl") {
             material_name = sep_s[1];
             materials[material_name] = Material();
-        } else if (sep_s[0] == "\tKd") {
-            sscanf(line.data(), "\tKd %lf %lf %lf", &val0, &val1, &val2);
-            print(val0, val1,val2);
+        } else if (sep_s[0] == "Kd") {
+            sscanf(line.data(), "Kd %lf %lf %lf", &val0, &val1, &val2);
             texture_ptr = new ConstantTexture(Color(val0, val1, val2));
+            materials[material_name].color_ptr = texture_ptr;
+        } else if (sep_s[0] == "map_Kd") {
+            int pos = file_path.find_last_of("/") + 1;
+            std::string image_path = file_path.substr(0, pos) + sep_s[1];
+            Image* image_ptr = new Image();
+            load_rgb_image_file(image_path, *image_ptr);
+            texture_ptr = new ImageTexture(image_ptr, nullptr);
             materials[material_name].color_ptr = texture_ptr;
         }
     }
@@ -196,6 +206,7 @@ bool load_objmtl_file(const std::string file_path, std::map<std::string, Materia
 }
 
 bool load_obj_file(const std::string file_path, std::vector<Object*>& objects) {
+    print("load obj file...");
     std::ifstream infile(file_path);
     std::string line;
     std::vector<std::string> str_vec;
@@ -207,17 +218,17 @@ bool load_obj_file(const std::string file_path, std::vector<Object*>& objects) {
     std::vector<std::pair<double, double>> tmp_uv_coordinates;
     SmoothSurface* surface = nullptr;
     std::string prev_keyword;
-    int vertex_count = 0, offset_idx = 0;
+    int v_offset_idx = 0, vt_offset_idx = 0, vn_offset_idx = 0;
     int v0_idx, v1_idx, v2_idx, v3_idx;
     int vt0_idx, vt1_idx, vt2_idx, vt3_idx;
     int vn0_idx, vn1_idx, vn2_idx, vn3_idx;
     double val0, val1, val2;
     auto materials = new std::map<std::string, Material>;
+    int count_obj = 0;
     while (!infile.eof()) {
         getline(infile, line);
         line = strip(line);
         sep_s = split_reg(line, " +");
-
         if (line[0] == '#' || line == "") {
             keyword = "none";
         } else {
@@ -234,12 +245,13 @@ bool load_obj_file(const std::string file_path, std::vector<Object*>& objects) {
         } else if (keyword == "o" || keyword == "g") {
             surface = new SmoothSurface();
             surface->set_material(new Material());
+            surface->texture_flag = true;
             prev_keyword = keyword;
+            count_obj++;
         } else if (keyword == "v") {
             sscanf(line.c_str(), "v  %lf %lf %lf", &val0, &val1, &val2);
             // print("v", val0, val1, val2, "size:", tmp_vertices.size());
             tmp_vertices.push_back(Vec(val0, val1, val2));
-            vertex_count += 1;
             prev_keyword = keyword;
         } else if (keyword == "vt") {
             sscanf(line.c_str(), "vt %lf %lf %lf", &val0, &val1, &val2);
@@ -256,12 +268,12 @@ bool load_obj_file(const std::string file_path, std::vector<Object*>& objects) {
             surface->set_material(mtl);
         } else if (keyword == "f") {
             if (sep_s.size() == 4) {
-                std::tie(v0_idx, vt0_idx, vn0_idx) =
-                    to_index(get_vertex_elements(sep_s[1]), offset_idx);
-                std::tie(v1_idx, vt1_idx, vn1_idx) =
-                    to_index(get_vertex_elements(sep_s[2]), offset_idx);
-                std::tie(v2_idx, vt2_idx, vn2_idx) =
-                    to_index(get_vertex_elements(sep_s[3]), offset_idx);
+                std::tie(v0_idx, vt0_idx, vn0_idx) = to_index(
+                    get_vertex_elements(sep_s[1]), v_offset_idx, vt_offset_idx, vn_offset_idx);
+                std::tie(v1_idx, vt1_idx, vn1_idx) = to_index(
+                    get_vertex_elements(sep_s[2]), v_offset_idx, vt_offset_idx, vn_offset_idx);
+                std::tie(v2_idx, vt2_idx, vn2_idx) = to_index(
+                    get_vertex_elements(sep_s[3]), v_offset_idx, vt_offset_idx, vn_offset_idx);
 
                 surface->triangles.push_back(std::make_tuple(v0_idx, v1_idx, v2_idx));
 
@@ -270,14 +282,14 @@ bool load_obj_file(const std::string file_path, std::vector<Object*>& objects) {
                         std::make_tuple(vt0_idx, vt1_idx, vt2_idx));
                 }
             } else if (sep_s.size() == 5) {  // triangulate
-                std::tie(v0_idx, vt0_idx, vn0_idx) =
-                    to_index(get_vertex_elements(sep_s[1]), offset_idx);
-                std::tie(v1_idx, vt1_idx, vn1_idx) =
-                    to_index(get_vertex_elements(sep_s[2]), offset_idx);
-                std::tie(v2_idx, vt2_idx, vn2_idx) =
-                    to_index(get_vertex_elements(sep_s[3]), offset_idx);
-                std::tie(v3_idx, vt3_idx, vn3_idx) =
-                    to_index(get_vertex_elements(sep_s[4]), offset_idx);
+                std::tie(v0_idx, vt0_idx, vn0_idx) = to_index(
+                    get_vertex_elements(sep_s[1]), v_offset_idx, vt_offset_idx, vn_offset_idx);
+                std::tie(v1_idx, vt1_idx, vn1_idx) = to_index(
+                    get_vertex_elements(sep_s[2]), v_offset_idx, vt_offset_idx, vn_offset_idx);
+                std::tie(v2_idx, vt2_idx, vn2_idx) = to_index(
+                    get_vertex_elements(sep_s[3]), v_offset_idx, vt_offset_idx, vn_offset_idx);
+                std::tie(v3_idx, vt3_idx, vn3_idx) = to_index(
+                    get_vertex_elements(sep_s[4]), v_offset_idx, vt_offset_idx, vn_offset_idx);
 
                 surface->triangles.push_back(std::make_tuple(v0_idx, v1_idx, v2_idx));
                 surface->triangles.push_back(std::make_tuple(v0_idx, v2_idx, v3_idx));
@@ -288,19 +300,21 @@ bool load_obj_file(const std::string file_path, std::vector<Object*>& objects) {
                     surface->triangle_uv_coordinates.push_back(
                         std::make_tuple(vt0_idx, vt2_idx, vt3_idx));
                 }
+                //                print(vt0_idx, vt1_idx, vt2_idx, tmp_uv_coordinates.size());
             }
             prev_keyword = keyword;
         } else if (prev_keyword == "f" && keyword != "f") {
             surface->vertices = tmp_vertices;
             surface->uv_coordinates = tmp_uv_coordinates;
-            surface->has_uv = false;
             surface->compute_normals();
             surface->compute_bboxes();
             surface->construct();
 
             objects.push_back(surface);
             prev_keyword = keyword;
-            offset_idx += tmp_vertices.size();
+            v_offset_idx += tmp_vertices.size();
+            vt_offset_idx += tmp_uv_coordinates.size();
+            vn_offset_idx += tmp_normals.size();
             tmp_vertices.clear();
             tmp_uv_coordinates.clear();
             tmp_normals.clear();

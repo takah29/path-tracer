@@ -160,7 +160,7 @@ bool build_4(Scene& scene) {
 
 // obj file scene
 bool build_5(Scene& scene) {
-    Vec eye(4.0, 1.2, 0.3), lookat(0.0, 2.8, 0.0);
+    Vec eye(0.0, 1.2, 1.3), lookat(0.0, 0.0, 0.0);
     Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
 
     // IBL
@@ -180,9 +180,9 @@ bool build_5(Scene& scene) {
         scene.add_object(obj_ptr);
     };
 
-    // Object* sphere_ptr;
-    // sphere_ptr = new Sphere(1.0, Vec(-1.2, 10.0, 1.0), &materials["week_light_1"]);
-    // scene.add_object(sphere_ptr);
+    Object* sphere_ptr;
+    sphere_ptr = new Sphere(0.1, Vec(0.0, 0.0, 0.0), &materials["week_light_1"]);
+    scene.add_object(sphere_ptr);
 
     return true;
 }
