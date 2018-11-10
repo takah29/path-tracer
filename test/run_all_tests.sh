@@ -35,6 +35,3 @@ echo "run test_bvh"
 ./test_bvh
 echo "---------------"
 
-echo "run test_loader"
-./test_loader
-echo "---------------"

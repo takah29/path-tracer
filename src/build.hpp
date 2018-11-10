@@ -5,6 +5,7 @@
 #include "camera.hpp"
 #include "hdr.hpp"
 #include "loader.hpp"
+#include "obj_loader.hpp"
 #include "random.hpp"
 #include "scene.hpp"
 #include "tracer.hpp"

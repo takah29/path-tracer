@@ -51,6 +51,7 @@ void Scene::render(const std::map<std::string, std::string> &params) {
     std::vector<Object *> lights = get_lights();
 
     // 空間データ構造の構築
+    printf("Building BVH...\n");
     construct();
 
 #pragma omp parallel for schedule(dynamic, 1) num_threads(8)

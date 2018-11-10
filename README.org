@@ -12,7 +12,7 @@
  - Image Based Lighting
 
 ** Requirements
- - clang 5.0 or later
+ - clang 6.0 or later
 
 ** Usage
 #+BEGIN_SRC bash
