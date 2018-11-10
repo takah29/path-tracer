@@ -160,7 +160,7 @@ bool build_4(Scene& scene) {
 
 // obj file scene
 bool build_5(Scene& scene) {
-    Vec eye(0.0, 1.2, 1.3), lookat(0.0, 0.0, 0.0);
+    Vec eye(200.0, 100.0, 1.3), lookat(0.0, 2.8, 0.0);
     Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
 
     // IBL
@@ -174,9 +174,20 @@ bool build_5(Scene& scene) {
     scene.set_camera(pinhole_ptr);
     scene.set_ibl(ibl_ptr);
 
-    std::vector<Object*> tmp_objects;
-    if (!load_obj_file("./models/sponza/sponza.obj", tmp_objects)) return false;
+    ObjLoader obj_loader("./models/rungholt/rungholt");
+    obj_loader.print_obj_data();
+    std::vector<Surface*> tmp_objects = obj_loader.convert_to_surfaces();
+    //    for (auto x : tmp_objects[0]->triangles) print(std::get<0>(x), std::get<1>(x), std::get<2>(x));
+
+    // if (!load_obj_file("./models/test.obj", tmp_objects)) return false;
+    // for (auto obj : tmp_objects) {
+    //     auto a = (SmoothSurface*)obj;
+    //     for (auto x : a->uv_coordinates) {
+    //         print(x.first, x.second);
+    //     }
+    // }
     for (Object* obj_ptr : tmp_objects) {
+        obj_ptr->material_ptr = &materials["gray"];
         scene.add_object(obj_ptr);
     };
 

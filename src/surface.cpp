@@ -1,13 +1,18 @@
 #include "surface.hpp"
 
 Surface::Surface()
-    : Object(), vertices(0), triangles(0), triangle_bboxes(0), uv_coordinates(0), texture_flag(false) {}
+    : Object(),
+      vertices(0),
+      uv_coordinates(0),
+      triangles(0),
+      triangle_bboxes(0),
+      texture_flag(false) {}
 Surface::Surface(Material *material_ptr)
     : Object(Vec(0.0, 0.0, 0.0), BBox(), material_ptr),
       vertices(0),
+      uv_coordinates(0),
       triangles(0),
       triangle_bboxes(0),
-      uv_coordinates(0),
       texture_flag(false) {
     this->bbox.empty();
 }
