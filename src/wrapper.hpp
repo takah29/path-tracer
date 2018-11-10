@@ -3,7 +3,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <string>
-#include "../stb/stb_image.h"
+#include "deps/stb_image.h"
 #include "utility.hpp"
 #include "vec.hpp"
 

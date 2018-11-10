@@ -1,5 +1,4 @@
 #include "loader.hpp"
-#include "wrapper.hpp"
 
 bool load_ply_file(const std::string file_path, Surface* surface) {
     std::ifstream infile(file_path);
