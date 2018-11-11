@@ -1,4 +1,5 @@
 #include "obj_loader.hpp"
+#include <array>
 #include <unordered_map>
 #include "wrapper.hpp"
 
@@ -84,6 +85,7 @@ Surface* ObjLoader::face_group_to_surface(const FaceGroup& face_group) {
     }
 
     surface->material_ptr = new Material(*face_group.material_ptr);
+
     surface->compute_normals();
     surface->compute_bboxes();
     surface->construct();
@@ -92,7 +94,7 @@ Surface* ObjLoader::face_group_to_surface(const FaceGroup& face_group) {
 }
 
 std::vector<Surface*> ObjLoader::convert_to_surfaces() {
-    printf("converting OBJ data structure...\n");
+    printf("Converting to surface...\n");
     std::vector<Surface*> surface_objects;
     for (size_t i = 0; i < groups.size(); i++) {
         surface_objects.push_back(face_group_to_surface(groups[i]));
@@ -102,6 +104,11 @@ std::vector<Surface*> ObjLoader::convert_to_surfaces() {
 
 bool ObjLoader::load_objmtl_file(const std::string file_path) {
     std::ifstream infile(file_path);
+    if (infile.fail()) {
+        printf("Failed to open mtl file.\n");
+        return false;
+    }
+
     std::string line;
 
     std::string keyword;
@@ -160,19 +167,20 @@ std::tuple<int, int, int> to_vertex_numbers(std::string s) {
 }
 
 bool ObjLoader::load_obj_file(const std::string file_path) {
-    print("loading obj file...");
+    print("Loading obj file...");
     std::ifstream infile(file_path);
+    if (infile.fail()) {
+        printf("Failed to open obj file.\n");
+        return false;
+    }
 
     std::string line;
     std::string keyword;
     std::vector<std::string> sep_s;
     FaceGroup group;
     std::string prev_keyword;
-    int v0_idx, v1_idx, v2_idx, v3_idx;
-    int vt0_idx, vt1_idx, vt2_idx, vt3_idx;
-    int vn0_idx, vn1_idx, vn2_idx, vn3_idx;
     double val0, val1, val2;
-
+    std::array<int, 4> v_idxs, vt_idxs, vn_idxs;
     while (!infile.eof()) {
         getline(infile, line);
         line = strip(line);
@@ -196,17 +204,14 @@ bool ObjLoader::load_obj_file(const std::string file_path) {
             prev_keyword = keyword;
         } else if (keyword == "v") {
             sscanf(line.c_str(), "v  %lf %lf %lf", &val0, &val1, &val2);
-            // print("v", val0, val1, val2, "size:", tmp_vertices.size());
             vertices.emplace_back(val0, val1, val2);
             prev_keyword = keyword;
         } else if (keyword == "vt") {
             sscanf(line.c_str(), "vt %lf %lf %lf", &val0, &val1, &val2);
-            // print("vt:", val0, val1, val2, "size:", uv_coordinates.size());
             uv_coordinates.emplace_back(val0, val1);
             prev_keyword = keyword;
         } else if (keyword == "vn") {
             sscanf(line.c_str(), "vn %lf %lf %lf", &val0, &val1, &val2);
-            // print("vn:", val0, val1, val2);
             normals.emplace_back(val0, val1, val2);
             prev_keyword = keyword;
         } else if (keyword == "usemtl") {
@@ -220,62 +225,58 @@ bool ObjLoader::load_obj_file(const std::string file_path) {
             }
         } else if (keyword == "f") {
             if (sep_s.size() == 4) {
-                std::tie(v0_idx, vt0_idx, vn0_idx) = to_vertex_numbers(sep_s[1]);
-                std::tie(v1_idx, vt1_idx, vn1_idx) = to_vertex_numbers(sep_s[2]);
-                std::tie(v2_idx, vt2_idx, vn2_idx) = to_vertex_numbers(sep_s[3]);
+                for (int i = 0; i < 3; i++) {
+                    std::tie(v_idxs[i], vt_idxs[i], vn_idxs[i]) = to_vertex_numbers(sep_s[i + 1]);
+                }
 
                 auto n_vertices = vertices.size();
-                v0_idx = to_index(v0_idx, n_vertices);
-                v1_idx = to_index(v1_idx, n_vertices);
-                v2_idx = to_index(v2_idx, n_vertices);
-                group.triangles.emplace_back(v0_idx, v1_idx, v2_idx);
-
-                if (vt0_idx != 0) {
-                    auto n_uv_coordinates = uv_coordinates.size();
-                    vt0_idx = to_index(vt0_idx, n_uv_coordinates);
-                    vt1_idx = to_index(vt1_idx, n_uv_coordinates);
-                    vt2_idx = to_index(vt2_idx, n_uv_coordinates);
-                    group.triangle_uv_coordinates.emplace_back(vt0_idx, vt1_idx, vt2_idx);
+                for (int i = 0; i < 3; i++) {
+                    v_idxs[i] = to_index(v_idxs[i], n_vertices);
                 }
-                if (vn0_idx != 0) {
+                group.triangles.emplace_back(v_idxs[0], v_idxs[1], v_idxs[2]);
+
+                if (vt_idxs[0] != 0) {
+                    auto n_uv_coordinates = uv_coordinates.size();
+                    for (int i = 0; i < 3; i++) {
+                        vt_idxs[i] = to_index(vt_idxs[i], n_uv_coordinates);
+                    }
+                    group.triangle_uv_coordinates.emplace_back(vt_idxs[0], vt_idxs[1], vt_idxs[2]);
+                }
+                if (vn_idxs[0] != 0) {
                     auto n_normals = normals.size();
-                    v0_idx = to_index(v0_idx, n_normals);
-                    v1_idx = to_index(v1_idx, n_normals);
-                    v2_idx = to_index(v2_idx, n_normals);
-                    group.vertex_normals.emplace_back(vt0_idx, vt1_idx, vt2_idx);
+                    for (int i = 0; i < 3; i++) {
+                        vn_idxs[i] = to_index(vn_idxs[i], n_normals);
+                    }
+                    group.vertex_normals.emplace_back(vn_idxs[0], vn_idxs[1], vn_idxs[2]);
                 }
             } else if (sep_s.size() == 5) {  // triangulate
-                std::tie(v0_idx, vt0_idx, vn0_idx) = to_vertex_numbers(sep_s[1]);
-                std::tie(v1_idx, vt1_idx, vn1_idx) = to_vertex_numbers(sep_s[2]);
-                std::tie(v2_idx, vt2_idx, vn2_idx) = to_vertex_numbers(sep_s[3]);
-                std::tie(v3_idx, vt3_idx, vn3_idx) = to_vertex_numbers(sep_s[4]);
-
-                auto n_vertices = vertices.size();
-                v0_idx = to_index(v0_idx, n_vertices);
-                v1_idx = to_index(v1_idx, n_vertices);
-                v2_idx = to_index(v2_idx, n_vertices);
-                v3_idx = to_index(v3_idx, n_vertices);
-                group.triangles.emplace_back(v0_idx, v1_idx, v2_idx);
-                group.triangles.emplace_back(v0_idx, v2_idx, v3_idx);
-
-                if (vt0_idx != 0) {
-                    auto n_uv_coordinates = uv_coordinates.size();
-                    vt0_idx = to_index(vt0_idx, n_uv_coordinates);
-                    vt1_idx = to_index(vt1_idx, n_uv_coordinates);
-                    vt2_idx = to_index(vt2_idx, n_uv_coordinates);
-                    vt3_idx = to_index(vt3_idx, n_uv_coordinates);
-                    group.triangle_uv_coordinates.emplace_back(vt0_idx, vt1_idx, vt2_idx);
-                    group.triangle_uv_coordinates.emplace_back(vt0_idx, vt2_idx, vt3_idx);
+                for (int i = 0; i < 4; i++) {
+                    std::tie(v_idxs[i], vt_idxs[i], vn_idxs[i]) = to_vertex_numbers(sep_s[i + 1]);
                 }
 
-                if (vn0_idx != 0) {
+                auto n_vertices = vertices.size();
+                for (int i = 0; i < 4; i++) {
+                    v_idxs[i] = to_index(v_idxs[i], n_vertices);
+                }
+                group.triangles.emplace_back(v_idxs[0], v_idxs[1], v_idxs[2]);
+                group.triangles.emplace_back(v_idxs[0], v_idxs[2], v_idxs[3]);
+
+                if (vt_idxs[0] != 0) {
+                    auto n_uv_coordinates = uv_coordinates.size();
+                    for (int i = 0; i < 4; i++) {
+                        vt_idxs[i] = to_index(vt_idxs[i], n_uv_coordinates);
+                    }
+                    group.triangle_uv_coordinates.emplace_back(vt_idxs[0], vt_idxs[1], vt_idxs[2]);
+                    group.triangle_uv_coordinates.emplace_back(vt_idxs[0], vt_idxs[2], vt_idxs[3]);
+                }
+
+                if (vn_idxs[0] != 0) {
                     auto n_normals = normals.size();
-                    v0_idx = to_index(v0_idx, n_normals);
-                    v1_idx = to_index(v1_idx, n_normals);
-                    v2_idx = to_index(v2_idx, n_normals);
-                    v3_idx = to_index(v3_idx, n_normals);
-                    group.vertex_normals.emplace_back(vt0_idx, vt1_idx, vt2_idx);
-                    group.vertex_normals.emplace_back(vt0_idx, vt2_idx, vt3_idx);
+                    for (int i = 0; i < 4; i++) {
+                        vn_idxs[i] = to_index(vn_idxs[i], n_normals);
+                    }
+                    group.vertex_normals.emplace_back(vn_idxs[0], vn_idxs[1], vn_idxs[2]);
+                    group.vertex_normals.emplace_back(vn_idxs[0], vn_idxs[2], vn_idxs[3]);
                 }
             }
             prev_keyword = keyword;
@@ -286,8 +287,6 @@ bool ObjLoader::load_obj_file(const std::string file_path) {
     }
     return true;
 }
-
-// std::vector<Surface*> ObjLoader::convert_surface_instances() {}
 
 void ObjLoader::print_obj_data() {
     printf("----- OBJ Data Info -----\n");

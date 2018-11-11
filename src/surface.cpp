@@ -77,12 +77,13 @@ std::vector<int> Surface::traverse(const Ray &ray) { return bvh.traverse(ray); }
 
 void Surface::get_uv_coordinates(const int triangle_idx, Hitpoint &hitpoint, const double &beta,
                                  const double &gamma) const {
-    const auto &[idx0, idx1, idx2] = triangles[triangle_idx];
+    const auto &[idx0, idx1, idx2] = triangle_uv_coordinates[triangle_idx];
     Vec coef_vec((1.0 - beta - gamma), beta, gamma);
     double u = dot(coef_vec, Vec(uv_coordinates[idx0].first, uv_coordinates[idx1].first,
                                  uv_coordinates[idx2].first));
     double v = dot(coef_vec, Vec(uv_coordinates[idx0].second, uv_coordinates[idx1].second,
                                  uv_coordinates[idx2].second));
+
     hitpoint.u = u;
     hitpoint.v = v;
 }
@@ -131,7 +132,7 @@ bool Surface::intersect_triangle(const int &triangle_idx, const Ray &ray,
     hitpoint.distance = t;
     hitpoint.position = ray.org + t * ray.dir;
     get_normal(triangle_idx, hitpoint, beta, gamma);
-    if (texture_flag) get_uv_coordinates(triangle_idx, hitpoint, beta, gamma);
+    get_uv_coordinates(triangle_idx, hitpoint, beta, gamma);
 
     return true;
 }

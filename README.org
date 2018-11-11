@@ -7,7 +7,7 @@
  - Path Tracing
  - Diffuse, Specular, Refraction
  - Mesh Rendering
- - Ascii PLY file import
+ - Ascii PLY file and OBJ file import 
  - BVH (Surface Area Heuristic)
  - Image Based Lighting
 
