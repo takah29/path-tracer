@@ -8,11 +8,12 @@
  - Diffuse, Specular, Refraction
  - Mesh Rendering
  - Ascii PLY file and OBJ file import 
+ - Texture mapping
  - BVH (Surface Area Heuristic)
  - Image Based Lighting
 
 ** Requirements
- - clang 6.0 or later
+ - clang 6.0 or later (C++17)
 
 ** Usage
 #+BEGIN_SRC bash
