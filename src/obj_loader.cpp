@@ -32,56 +32,36 @@ Surface* ObjLoader::face_group_to_surface(const FaceGroup& face_group) {
         surface = new FlatSurface;
     }
 
+    const int n_elem = 3;
+
     std::unordered_map<int, int> index_table;
+    std::array<int, n_elem> idxs, tmp_idxs;
 
     for (size_t i = 0; i < face_group.triangles.size(); i++) {
-        const auto [idx0, idx1, idx2] = face_group.triangles[i];
-        int tmp_idx0 = 0, tmp_idx1 = 0, tmp_idx2 = 0;
+        std::tie(idxs[0], idxs[1], idxs[2]) = face_group.triangles[i];
 
-        auto p0 = index_table.emplace(idx0, index_table.size());
-        if (p0.second) {
-            surface->vertices.push_back(vertices[idx0]);
+        for (int j = 0; j < n_elem; j++) {
+            auto p = index_table.emplace(idxs[j], index_table.size());
+            if (p.second) {
+                surface->vertices.push_back(vertices[idxs[j]]);
+            }
+            tmp_idxs[j] = index_table[idxs[j]];
         }
-        tmp_idx0 = index_table[idx0];
-
-        auto p1 = index_table.emplace(idx1, index_table.size());
-        if (p1.second) {
-            surface->vertices.push_back(vertices[idx1]);
-        }
-        tmp_idx1 = index_table[idx1];
-
-        auto p2 = index_table.emplace(idx2, index_table.size());
-        if (p2.second) {
-            surface->vertices.push_back(vertices[idx2]);
-        }
-        tmp_idx2 = index_table[idx2];
-        surface->triangles.emplace_back(tmp_idx0, tmp_idx1, tmp_idx2);
+        surface->triangles.emplace_back(tmp_idxs[0], tmp_idxs[1], tmp_idxs[2]);
     }
 
     index_table.clear();
     for (size_t i = 0; i < face_group.triangle_uv_coordinates.size(); i++) {
-        const auto [idx0, idx1, idx2] = face_group.triangle_uv_coordinates[i];
-        int tmp_idx0 = 0, tmp_idx1 = 0, tmp_idx2 = 0;
+        std::tie(idxs[0], idxs[1], idxs[2]) = face_group.triangle_uv_coordinates[i];
 
-        auto p0 = index_table.emplace(idx0, index_table.size());
-        if (p0.second) {
-            surface->uv_coordinates.push_back(uv_coordinates[idx0]);
+        for (int j = 0; j < n_elem; j++) {
+            auto p = index_table.emplace(idxs[j], index_table.size());
+            if (p.second) {
+                surface->uv_coordinates.push_back(uv_coordinates[idxs[j]]);
+            }
+            tmp_idxs[j] = index_table[idxs[j]];
         }
-        tmp_idx0 = index_table[idx0];
-
-        auto p1 = index_table.emplace(idx1, index_table.size());
-        if (p1.second) {
-            surface->uv_coordinates.push_back(uv_coordinates[idx1]);
-        }
-        tmp_idx1 = index_table[idx1];
-
-        auto p2 = index_table.emplace(idx2, index_table.size());
-        if (p2.second) {
-            surface->uv_coordinates.push_back(uv_coordinates[idx2]);
-        }
-        tmp_idx2 = index_table[idx2];
-
-        surface->triangle_uv_coordinates.emplace_back(tmp_idx0, tmp_idx1, tmp_idx2);
+        surface->triangle_uv_coordinates.emplace_back(tmp_idxs[0], tmp_idxs[1], tmp_idxs[2]);
     }
 
     surface->material_ptr = new Material(*face_group.material_ptr);
