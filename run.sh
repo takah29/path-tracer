@@ -7,5 +7,5 @@ tar -zxvf bunny.tar.gz
 rm bunny.tar.gz
 cd ..
 
-./main -w 320 -h 240 -s 2 -ss 16
+./main -n 3 -w 320 -h 240 -s 2 -ss 8
 
