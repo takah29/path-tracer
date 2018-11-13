@@ -114,7 +114,7 @@ Color path_trace(const Ray &ray, const std::vector<Object *> objects, const BVH 
     switch (target_object->material_ptr->reflection_type) {
         case ReflectionType::DIFFUSE: {
             const Vec &w = orienting_normal;
-            auto[u, v] = create_orthonormal_basis(w);
+            auto [u, v] = create_orthonormal_basis(w);
             Vec dir = sample_from_hemisphere(u, v, w, rnd, 1.0);
             incoming_radiance =
                 path_trace(Ray(hitpoint.position, dir), objects, bvh, ibl_ptr, rnd, depth + 1);

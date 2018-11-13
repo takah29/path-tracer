@@ -24,6 +24,7 @@ struct Material {
     Texture *color_ptr;
     Color emission;
     ReflectionType reflection_type;
+    bool texture_flag;
 
     Material();
     Material(Texture *color_ptr, const Color &emission, const ReflectionType &reflection_type);

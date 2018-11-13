@@ -15,6 +15,7 @@ struct FaceGroup {
     std::vector<std::tuple<int, int, int>> triangle_uv_coordinates;
     std::vector<std::tuple<int, int, int>> vertex_normals;
     bool smooth_flag;
+    bool texture_flag;
 
     FaceGroup();
 };

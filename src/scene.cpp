@@ -54,7 +54,7 @@ void Scene::render(const std::map<std::string, std::string> &params) {
     printf("Building BVH...\n");
     construct();
 
-#pragma omp parallel for schedule(dynamic, 1) num_threads(8)
+#pragma omp parallel for schedule(dynamic, 1)
     for (int r = 0; r < vp.height_res; r++) {
         if (r % 10 == 0) {
             std::cout << "processing line " << r << std::endl;
