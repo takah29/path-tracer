@@ -116,8 +116,9 @@ bool build_3(Scene& scene) {
     sphere_ptr = new Sphere(1.0, Vec(5.0, 5.0, 5.0), &materials["week_light_2"]);
     scene.add_object(sphere_ptr);
 
+
     UniformRealGenerator rnd(4);
-    const int n_lights = 100;
+    const int n_lights = 20;
     for (int i = 0; i < n_lights; i++) {
         Material* material =
             new Material(new ConstantTexture(Color()), Color(6 * rnd(), 6 * rnd(), 6 * rnd()),
@@ -168,23 +169,17 @@ bool build_5(Scene& scene) {
     load_hdr_image("hdr_image/aristea_wreck_4k.hdr", *image_ptr);
     Mapping* mapping_ptr = new SphericalMap(0.);
     Texture* ibl_ptr(new ImageTexture(image_ptr, mapping_ptr));
-    // Texture* ibl_ptr(new ConstantTexture(Color(BLACK)));
 
     scene.set_camera(pinhole_ptr);
     scene.set_ibl(ibl_ptr);
 
     ObjLoader obj_loader("./models/rungholt/rungholt.obj");
     obj_loader.print_obj_data();
-    //obj_loader.all_smooth_flag(true);
     std::vector<Surface*> tmp_objects = obj_loader.convert_to_surfaces();
 
     for (Object* obj_ptr : tmp_objects) {
         scene.add_object(obj_ptr);
     };
-
-    // Object* sphere_ptr;
-    // sphere_ptr = new Sphere(0.1, Vec(0.0, 100.0, 0.0), &materials["week_light_1"]);
-    // scene.add_object(sphere_ptr);
 
     return true;
 }
