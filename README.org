@@ -25,3 +25,4 @@
  - https://github.com/githole/edupt
  - https://qiita.com/omochi64/items/9336f57118ba918f82ec
  - http://www.flipcode.com/archives/HDR_Image_Reader.shtml
+ - https://github.com/nothings/stb
