@@ -18,7 +18,6 @@ struct Surface : public Object {
     std::vector<std::tuple<int, int, int>> triangles;
     std::vector<std::tuple<int, int, int>> triangle_uv_coordinates;
     std::vector<BBox> triangle_bboxes;
-    bool texture_flag;
     BVH bvh;
 
     Surface();

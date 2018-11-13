@@ -117,6 +117,7 @@ bool ObjLoader::load_objmtl_file(const std::string file_path) {
             load_rgb_image_file(image_path, *image_ptr);
             texture_ptr = new ImageTexture(image_ptr, nullptr);
             materials[material_name].color_ptr = texture_ptr;
+            materials[material_name].texture_flag = true;
         }
     }
     return true;
