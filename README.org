@@ -2,6 +2,7 @@
 * Path Tracer
 [[https://github.com/takah29/path-tracer/blob/master/images/happy_8192spp.png]]
 [[https://github.com/takah29/path-tracer/blob/master/images/dragon_ibl_16184spp.png]]
+[[https://github.com/takah29/path-tracer/blob/master/images/rungholt_2048spp.png]]
 
 ** Features
  - Path Tracing
