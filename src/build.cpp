@@ -1,14 +1,4 @@
-#ifndef _BUILD_H_
-#define _BUILD_H_
-
-#include <memory>
-#include "camera.h"
-#include "hdr.h"
-#include "loader.h"
-#include "random.h"
-#include "scene.h"
-#include "tracer.h"
-#include "utility.h"
+#include "build.hpp"
 
 // Texture
 CubicNoise* noise_ptr = new CubicNoise;
@@ -16,7 +6,7 @@ WrappedFBmTexture* fbm_texture = new WrappedFBmTexture(noise_ptr, Color(0.25, 0.
 MarbleTexture* marble_texture = new MarbleTexture(noise_ptr, Color(0.75, 0.7, 0.7), 0.2, 2.0);
 
 // Material info
-std::map<std::string, Material> materials = {
+std::unordered_map<std::string, Material> materials = {
     {"red",
      Material(new ConstantTexture(Color(0.75, 0.25, 0.25)), Color(), ReflectionType::DIFFUSE)},
     {"blue",
@@ -113,7 +103,7 @@ bool build_3(Scene& scene) {
     scene.add_object(plane_ptr);
 
     SmoothSurface* surface = new SmoothSurface(&materials["gray"]);
-    if (!from_ply_file("./models/bunny/reconstruction/bun_zipper.ply", surface)) return false;
+    if (!load_ply_file("./models/bunny/reconstruction/bun_zipper.ply", surface)) return false;
     surface->scale(2. / (surface->bbox.corner1.x - surface->bbox.corner0.x));
     surface->move(Vec(-surface->bbox.center.x, -surface->bbox.corner0.y, -surface->bbox.center.z));
     Object* surface_ptr = static_cast<Object*>(surface);
@@ -126,8 +116,9 @@ bool build_3(Scene& scene) {
     sphere_ptr = new Sphere(1.0, Vec(5.0, 5.0, 5.0), &materials["week_light_2"]);
     scene.add_object(sphere_ptr);
 
+
     UniformRealGenerator rnd(4);
-    const int n_lights = 100;
+    const int n_lights = 20;
     for (int i = 0; i < n_lights; i++) {
         Material* material =
             new Material(new ConstantTexture(Color()), Color(6 * rnd(), 6 * rnd(), 6 * rnd()),
@@ -147,7 +138,7 @@ bool build_4(Scene& scene) {
 
     // IBL
     Image* image_ptr = new Image();
-    load_hdr_image("hdr_image/kiara_6_afternoon_4k.hdr", *image_ptr);
+    load_hdr_image("hdr_image/Tokyo_BigSight_3k.hdr", *image_ptr);
     image_ptr->flip();
     Mapping* mapping_ptr = new SphericalMap(45.);
     Texture* ibl_ptr(new ImageTexture(image_ptr, mapping_ptr));
@@ -155,11 +146,11 @@ bool build_4(Scene& scene) {
     scene.set_camera(pinhole_ptr);
     scene.set_ibl(ibl_ptr);
 
-    Object* box_ptr(new Box(Vec(-3.0, -0.1, -3.0), Vec(3.0, 0.0, 3.0), &materials["gray"]));
+    Object* box_ptr(new Box(Vec(-3.0, -0.1, -3.0), Vec(3.0, 0.0, 3.0), &materials["checker"]));
     scene.add_object(box_ptr);
 
-    SmoothSurface* surface = new SmoothSurface(&materials["green"]);
-    if (!from_ply_file("./models/dragon_recon/dragon_vrip_res2.ply", surface)) return false;
+    SmoothSurface* surface = new SmoothSurface(&materials["specular"]);
+    if (!load_ply_file("./models/dragon_recon/dragon_vrip_res2.ply", surface)) return false;
     surface->scale(2. / (surface->bbox.corner1.x - surface->bbox.corner0.x));
     surface->move(Vec(-surface->bbox.center.x, -surface->bbox.corner0.y, -surface->bbox.center.z));
     Object* surface_ptr = static_cast<Object*>(surface);
@@ -168,4 +159,27 @@ bool build_4(Scene& scene) {
     return true;
 }
 
-#endif
+// obj file scene
+bool build_5(Scene& scene) {
+    Vec eye(200.0, 100.0, 200.0), lookat(50.0, 5.0, 50.0);
+    Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+
+    // IBL
+    Image* image_ptr = new Image();
+    load_hdr_image("hdr_image/aristea_wreck_4k.hdr", *image_ptr);
+    Mapping* mapping_ptr = new SphericalMap(0.);
+    Texture* ibl_ptr(new ImageTexture(image_ptr, mapping_ptr));
+
+    scene.set_camera(pinhole_ptr);
+    scene.set_ibl(ibl_ptr);
+
+    ObjLoader obj_loader("./models/rungholt/rungholt.obj");
+    obj_loader.print_obj_data();
+    std::vector<Surface*> tmp_objects = obj_loader.convert_to_surfaces();
+
+    for (Object* obj_ptr : tmp_objects) {
+        scene.add_object(obj_ptr);
+    };
+
+    return true;
+}

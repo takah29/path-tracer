@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <map>
-#include "../scene.h"
+#include "../src/scene.hpp"
 
 using namespace std;
 

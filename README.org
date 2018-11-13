@@ -7,12 +7,13 @@
  - Path Tracing
  - Diffuse, Specular, Refraction
  - Mesh Rendering
- - Ascii PLY file import
+ - Ascii PLY file and OBJ file import 
+ - Texture mapping
  - BVH (Surface Area Heuristic)
  - Image Based Lighting
 
 ** Requirements
- - clang 5.0
+ - clang 6.0 or later (C++17)
 
 ** Usage
 #+BEGIN_SRC bash
@@ -24,3 +25,4 @@
  - https://github.com/githole/edupt
  - https://qiita.com/omochi64/items/9336f57118ba918f82ec
  - http://www.flipcode.com/archives/HDR_Image_Reader.shtml
+ - https://github.com/nothings/stb

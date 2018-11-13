@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE tracer
 #include <boost/test/included/unit_test.hpp>
 
-#include "../random.h"
-#include "../tracer.h"
+#include "../src/random.hpp"
+#include "../src/tracer.hpp"
 
 using namespace std;
 

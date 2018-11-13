@@ -1,14 +1,14 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "build.h"
-#include "scene.h"
+#include "build.hpp"
+#include "scene.hpp"
 
 std::map<std::string, std::string> get_params(std::vector<std::string>& args) {
     // Default parameter
     std::map<std::string, std::string> params{
-        {"samples", "2"},      {"super_samples", "4"}, {"plane_width", "1.8"}, {"width_res", "320"},
-        {"height_res", "240"}, {"scene_num", "3"},     {"tracer", "pt"}};
+        {"samples", "2"},      {"super_samples", "4"}, {"plane_width", "1.5"}, {"width_res", "320"},
+        {"height_res", "240"}, {"scene_num", "1"},     {"tracer", "pt"}};
 
     for (size_t i = 1; i < args.size(); i += 2) {
         if (args[i] == "-s") {
@@ -60,6 +60,10 @@ int main(int argc, char** argv) {
         };
         case 4: {
             if (!build_4(scene)) return 1;
+            break;
+        };
+        case 5: {
+            if (!build_5(scene)) return 1;
             break;
         };
 

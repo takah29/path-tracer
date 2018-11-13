@@ -1,9 +1,9 @@
 #define BOOST_TEST_MODULE object
 #include <boost/test/included/unit_test.hpp>
 
-#include "../constant.h"
-#include "../object.h"
-#include "../ray.h"
+#include "../src/constant.hpp"
+#include "../src/object.hpp"
+#include "../src/ray.hpp"
 
 struct Fixture {
     Material material_magenta;

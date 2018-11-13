@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE vec
 #include <boost/test/included/unit_test.hpp>
 
-#include "../utility.h"
-#include "../vec.h"
+#include "../src/utility.hpp"
+#include "../src/vec.hpp"
 
 struct Fixture {
     Vec v1, v2;

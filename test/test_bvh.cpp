@@ -3,7 +3,7 @@
 
 #include <utility>
 #include <vector>
-#include "../bvh.h"
+#include "../src/bvh.hpp"
 
 BOOST_AUTO_TEST_CASE(test_correct_calc_bbox_area) {
     Vec corner0(-1.0, 0.0, -1.0), corner1(1.0, 2.0, 1.0);
