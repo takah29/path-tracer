@@ -1,4 +1,5 @@
 #include "object.hpp"
+#include <cassert>
 
 BBox::BBox()
     : corner0(-0.5, -0.5, -0.5), corner1(0.5, 0.5, 0.5), center((corner0 + corner1) / 2.0) {}
@@ -163,8 +164,10 @@ Vec Box::get_normal(const int face_hit) const {
             return Vec(0.0, 1.0, 0.0);
         case 5:
             return Vec(0.0, 0.0, 1.0);
+        default:
+            assert(!"Error: 0 <= face_hit <= 5 expected.");
+            return Vec();
     }
-    return Vec(0.0, 0.0, 0.0);
 }
 
 bool Box::intersect(const Ray &ray, Hitpoint &hitpoint) const {
@@ -269,10 +272,10 @@ Triangle::Triangle(const Vec &v0, const Vec &v1, const Vec &v2, Material *materi
 Triangle::~Triangle() {}
 
 bool Triangle::intersect(const Ray &ray, Hitpoint &hitpoint) const {
-    auto[a, e, i] = v0 - v1;
-    auto[b, f, j] = v0 - v2;
-    auto[c, g, k] = ray.dir;
-    auto[d, h, l] = v0 - ray.org;
+    auto [a, e, i] = v0 - v1;
+    auto [b, f, j] = v0 - v2;
+    auto [c, g, k] = ray.dir;
+    auto [d, h, l] = v0 - ray.org;
 
     double m = f * k - g * j, n = h * k - g * l, p = f * l - h * j;
     double q = g * i - e * k, s = e * j - f * i;

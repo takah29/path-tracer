@@ -1,5 +1,6 @@
 #include "obj_loader.hpp"
 #include <array>
+#include <cassert>
 #include <unordered_map>
 #include "wrapper.hpp"
 
@@ -143,6 +144,8 @@ std::tuple<int, int, int> to_vertex_numbers(std::string s) {
             vn = std::stoi(vec_str[2]);
             break;
         }
+        default:
+            assert(!" 1 <= vec_str.size() <=3 expected.");
     }
     return {v, vt, vn};
 }

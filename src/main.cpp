@@ -26,7 +26,6 @@ std::map<std::string, std::string> get_params(std::vector<std::string>& args) {
 
     printf("========== Parameter ==========\n");
     printf("Scene number : %s\n", params["scene_num"].c_str());
-    // printf("Tracer       : %s\n", params["tracer"].c_str());
     printf("Samples      : %s\n", params["samples"].c_str());
     printf("Super-Samples: %s\n", params["super_samples"].c_str());
     printf("Resolution   : %sx%s\n", params["width_res"].c_str(), params["height_res"].c_str());
@@ -46,31 +45,23 @@ int main(int argc, char** argv) {
 
     Scene scene;
     switch (std::stoi(params["scene_num"])) {
-        case 1: {
+        case 1:
             if (!build_1(scene)) return 1;
             break;
-        };
-        case 2: {
+        case 2:
             if (!build_2(scene)) return 1;
             break;
-        };
-        case 3: {
+        case 3:
             if (!build_3(scene)) return 1;
             break;
-        };
-        case 4: {
+        case 4:
             if (!build_4(scene)) return 1;
             break;
-        };
-        case 5: {
+        case 5:
             if (!build_5(scene)) return 1;
             break;
-        };
-
-        default: {
-            if (!build_1(scene)) return 1;
-            break;
-        }
+        default:
+            return 1;
     }
 
     scene.render(params);

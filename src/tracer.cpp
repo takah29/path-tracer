@@ -1,3 +1,4 @@
+#include <cassert>
 #include "tracer.hpp"
 
 // シーンの全オブジェクトの内、レイの原点に最も近いオブジェクトの情報を取得する
@@ -175,6 +176,10 @@ Color path_trace(const Ray &ray, const std::vector<Object *> objects, const BVH 
                 weight = target_obj_color / russian_roulette_probability;
             }
         } break;
+
+        default:
+            assert(!"Error: reflection_type is unexpected value.");
+            break;
     }
 
     return target_obj_emission + multiply(weight, incoming_radiance);
