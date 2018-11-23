@@ -172,8 +172,9 @@ void FlatSurface::compute_normals() {
     }
 }
 
-void FlatSurface::get_normal(const int triangle_idx, Hitpoint &hitpoint, const double &beta,
-                             const double &gamma) const {
+void FlatSurface::get_normal(const int triangle_idx, Hitpoint &hitpoint,
+                             [[maybe_unused]] const double &beta,
+                             [[maybe_unused]] const double &gamma) const {
     hitpoint.normal = triangle_normals[triangle_idx];
 }
 

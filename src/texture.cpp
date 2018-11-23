@@ -3,7 +3,7 @@
 
 ConstantTexture::ConstantTexture() : color(0.5, 0.5, 0.5) {}
 ConstantTexture::ConstantTexture(const Color &color) : color(color) {}
-Color ConstantTexture::get_value(const Hitpoint &hitpoint) const { return color; }
+Color ConstantTexture::get_value([[maybe_unused]] const Hitpoint &hitpoint) const { return color; }
 
 ImageTexture::ImageTexture() : image_ptr(nullptr), mapping_ptr(nullptr) {}
 ImageTexture::ImageTexture(Image *image_ptr, Mapping *mapping_ptr)
@@ -31,7 +31,7 @@ CheckerTexture::CheckerTexture() : color1(1.0, 1.0, 1.0), color2(0.0, 0.0, 0.0),
 CheckerTexture::CheckerTexture(const Color &color1, const Color &color2, const double size)
     : color1(color1), color2(color2), size(size) {}
 Color CheckerTexture::get_value(const Hitpoint &hitpoint) const {
-    auto[x, y, z] = hitpoint.position;
+    auto [x, y, z] = hitpoint.position;
     const double v = std::sin(M_PI * x / size + EPS) * std::sin(M_PI * y / size + EPS) *
                      std::sin(M_PI * z / size + EPS);
 

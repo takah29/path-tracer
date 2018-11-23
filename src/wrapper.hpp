@@ -1,11 +1,15 @@
 #ifndef _WRAPPER_H_
 #define _WRAPPER_H_
 
-#define STB_IMAGE_IMPLEMENTATION
 #include <string>
-#include "deps/stb_image.h"
 #include "utility.hpp"
 #include "vec.hpp"
+
+#define STB_IMAGE_IMPLEMENTATION
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#include "deps/stb_image.h"
+#pragma clang diagnostic pop
 
 void load_rgb_image_file(const std::string &file_path, Image &image) {
     int x, y, n;
