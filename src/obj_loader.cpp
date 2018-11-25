@@ -13,7 +13,7 @@ FaceGroup::FaceGroup()
 
 ObjLoader::ObjLoader() : vertices(0), uv_coordinates(0), normals(0), groups(0), materials() {}
 ObjLoader::ObjLoader(std::string file_path)
-    : vertices(0), uv_coordinates(0), normals(0), groups(0), materials() {
+    : ObjLoader() {
     load_obj_file(file_path);
 }
 
@@ -109,29 +109,28 @@ bool ObjLoader::load_objmtl_file(const std::string file_path) {
 }
 
 std::tuple<int, int, int> to_vertex_numbers(std::string s) {
-    int v = 0, vt = 0, vn = 0;
     auto vec_str = split(s, '/');
 
     switch (vec_str.size()) {
         case 1: {
-            v = std::stoi(vec_str[0]);
-            break;
+            const int v = std::stoi(vec_str[0]);
+            return {v, 0, 0};
         }
         case 2: {
-            v = std::stoi(vec_str[0]);
-            vt = std::stoi(vec_str[1]);
-            break;
+            const int v = std::stoi(vec_str[0]);
+            const int vt = std::stoi(vec_str[1]);
+            return {v, vt, 0};
         }
         case 3: {
-            v = std::stoi(vec_str[0]);
-            vt = vec_str[1] != "" ? std::stoi(vec_str[1]) : 0;
-            vn = std::stoi(vec_str[2]);
-            break;
+            const int v = std::stoi(vec_str[0]);
+            const int vt = vec_str[1] != "" ? std::stoi(vec_str[1]) : 0;
+            const int vn = std::stoi(vec_str[2]);
+            return {v, vt, vn};
         }
         default:
             assert(!" 1 <= vec_str.size() <=3 expected.");
+            return {0, 0, 0};
     }
-    return {v, vt, vn};
 }
 
 void ObjLoader::push_indices(std::vector<int> &from_indices, 
