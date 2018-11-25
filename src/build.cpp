@@ -173,11 +173,7 @@ bool build_5(Scene& scene) {
     scene.set_camera(pinhole_ptr);
     scene.set_ibl(ibl_ptr);
 
-    ObjLoader obj_loader("./models/rungholt/rungholt.obj");
-    obj_loader.print_obj_data();
-    std::vector<Surface*> tmp_objects = obj_loader.convert_to_surfaces();
-
-    for (Object* obj_ptr : tmp_objects) {
+    for (Object* obj_ptr : ObjLoader().load_obj_file("./models/rungholt/rungholt.obj")) {
         scene.add_object(obj_ptr);
     };
 

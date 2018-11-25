@@ -12,18 +12,12 @@ FaceGroup::FaceGroup()
       smooth_flag(false) {}
 
 ObjLoader::ObjLoader() : vertices(0), uv_coordinates(0), normals(0), groups(0), materials() {}
-ObjLoader::ObjLoader(std::string file_path)
-    : ObjLoader() {
-    load_obj_file(file_path);
-}
 
 void ObjLoader::all_smooth_flag(const bool smooth_flag) {
     for (auto& group : groups) {
         group.smooth_flag = smooth_flag;
     }
 }
-
-std::unordered_map<std::string, Material> ObjLoader::get_materials() { return materials; }
 
 template<typename T>
 void ObjLoader::convert(const std::vector<T> &from_vertices, 
@@ -49,7 +43,7 @@ Surface* ObjLoader::face_group_to_surface(const FaceGroup& face_group) {
     convert<>(vertices, face_group.triangles, surface->vertices, surface->triangles);
     convert<>(uv_coordinates, face_group.triangle_uv_coordinates, surface->uv_coordinates, surface->triangle_uv_coordinates);
 
-    surface->material_ptr = new Material(*face_group.material_ptr);
+    surface->material_ptr = face_group.material_ptr;
 
     surface->compute_normals();
     surface->compute_bboxes();
@@ -90,19 +84,19 @@ bool ObjLoader::load_objmtl_file(const std::string file_path) {
         if (sep_s[0] == "newmtl") {
             material_name = sep_s[1];
             materials.emplace(material_name,
-                              Material(new ConstantTexture(GRAY), BLACK, ReflectionType::DIFFUSE));
+                              new Material(new ConstantTexture(GRAY), BLACK, ReflectionType::DIFFUSE));
         } else if (sep_s[0] == "Kd") {
             sscanf(line.data(), "Kd %lf %lf %lf", &val0, &val1, &val2);
             texture_ptr = new ConstantTexture(Color(val0, val1, val2));
-            materials[material_name].color_ptr = texture_ptr;
+            materials[material_name]->color_ptr = texture_ptr;
         } else if (sep_s[0] == "map_Kd") {
             int pos = file_path.find_last_of("/") + 1;
             std::string image_path = file_path.substr(0, pos) + sep_s[1];
             Image* image_ptr = new Image();
             load_rgb_image_file(image_path, *image_ptr);
             texture_ptr = new ImageTexture(image_ptr, nullptr);
-            materials[material_name].color_ptr = texture_ptr;
-            materials[material_name].texture_flag = true;
+            materials[material_name]->color_ptr = texture_ptr;
+            materials[material_name]->texture_flag = true;
         }
     }
     return true;
@@ -144,17 +138,22 @@ void ObjLoader::push_indices(std::vector<int> &from_indices,
     }
 }
 
-bool ObjLoader::load_obj_file(const std::string file_path) {
+std::vector<Surface*> ObjLoader::load_obj_file(const std::string file_path) {
     print("Loading obj file...");
     std::ifstream infile(file_path);
     if (infile.fail()) {
         printf("Failed to open obj file.\n");
-        return false;
+        return std::vector<Surface*>();
     }
 
     FaceGroup group;
     std::string prev_keyword;
-    double val0, val1, val2;
+
+    auto load_real3 = [&](const std::string line, const std::string format) {
+        double val0, val1, val2;
+        sscanf(line.c_str(), format.c_str(), &val0, &val1, &val2);
+        return std::make_tuple(val0, val1, val2);
+    };
 
     while (!infile.eof()) {
         std::string line;
@@ -174,21 +173,21 @@ bool ObjLoader::load_obj_file(const std::string file_path) {
             std::string mtl_path = file_path.substr(0, pos) + sep_s[1];
             if (!load_objmtl_file(mtl_path)) {
                 printf("mtl file not found.");
-                return false;
+                return std::vector<Surface*>();
             }
         } else if (keyword == "o" || keyword == "g") {
             group = FaceGroup();
         } else if (keyword == "v") {
-            sscanf(line.c_str(), "v  %lf %lf %lf", &val0, &val1, &val2);
+            auto [val0, val1, val2] = load_real3(line, "v %lf %lf %lf");
             vertices.emplace_back(val0, val1, val2);
         } else if (keyword == "vt") {
-            sscanf(line.c_str(), "vt %lf %lf %lf", &val0, &val1, &val2);
+            auto [val0, val1, val2] = load_real3(line, "vt %lf %lf %lf");
             uv_coordinates.emplace_back(val0, val1);
         } else if (keyword == "vn") {
-            sscanf(line.c_str(), "vn %lf %lf %lf", &val0, &val1, &val2);
+            auto [val0, val1, val2] = load_real3(line, "vn %lf %lf %lf");
             normals.emplace_back(val0, val1, val2);
         } else if (keyword == "usemtl") {
-            group.material_ptr = &(materials.at(sep_s[1]));
+            group.material_ptr = materials.at(sep_s[1]);
         } else if (keyword == "s") {
             print(line);
             if (sep_s[1] == "1") {
@@ -217,7 +216,8 @@ bool ObjLoader::load_obj_file(const std::string file_path) {
         }
         prev_keyword = keyword;
     }
-    return true;
+    print_obj_data();
+    return convert_to_surfaces();
 }
 
 void ObjLoader::print_obj_data() {
