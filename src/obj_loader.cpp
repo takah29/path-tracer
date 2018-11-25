@@ -61,8 +61,8 @@ Surface* ObjLoader::face_group_to_surface(const FaceGroup& face_group) {
 std::vector<Surface*> ObjLoader::convert_to_surfaces() {
     printf("Converting to surface...\n");
     std::vector<Surface*> surface_objects;
-    for (size_t i = 0; i < groups.size(); i++) {
-        surface_objects.push_back(face_group_to_surface(groups[i]));
+    for (auto idx : groups) {
+        surface_objects.push_back(face_group_to_surface(idx));
     }
     return surface_objects;
 }
@@ -142,18 +142,19 @@ bool ObjLoader::load_obj_file(const std::string file_path) {
         return false;
     }
 
-    std::string line;
-    std::string keyword;
-    std::vector<std::string> sep_s;
     FaceGroup group;
     std::string prev_keyword;
     double val0, val1, val2;
+
     std::array<int, 4> v_idxs, vt_idxs, vn_idxs;
+
     while (!infile.eof()) {
+        std::string line;
         getline(infile, line);
         line = strip(line);
 
-        sep_s = split_reg(line, " +");
+        const std::vector<std::string> sep_s = split_reg(line, " +");
+        std::string keyword;
         if (line[0] == '#' || line == "") {
             keyword = "none";
         } else {
