@@ -31,6 +31,7 @@ void ObjLoader::convert(const std::vector<T> &from_vertices,
             if (index_table.find(vi) == index_table.end()) {
                 to_vertices.push_back(from_vertices[vi]);
             }
+            index_table.emplace(vi, index_table.size());
         }
         to_indices.emplace_back(index_table[v1], index_table[v2], index_table[v3]);
     }
@@ -131,7 +132,7 @@ void ObjLoader::push_indices(std::vector<int> &from_indices,
                              std::vector<std::tuple<int, int, int>> &to_indices, 
                              const std::size_t offset) {
 
-    const auto no_index = vertices.size();
+    const auto no_index = from_indices.size();
     std::transform(from_indices.cbegin(), from_indices.cend(), from_indices.begin(), [&](auto v){ return to_index(v, offset); });
     for (std::size_t i = 0; i < no_index - 2; i++) {
         to_indices.emplace_back(from_indices[0], from_indices[i + 1], from_indices[i + 2]);
