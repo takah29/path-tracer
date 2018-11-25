@@ -44,12 +44,8 @@ void ObjLoader::convert(const std::vector<T> &from_vertices,
 
 
 Surface* ObjLoader::face_group_to_surface(const FaceGroup& face_group) {
-    Surface* surface;
-    if (face_group.smooth_flag) {
-        surface = new SmoothSurface;
-    } else {
-        surface = new FlatSurface;
-    }
+    Surface* const surface = face_group.smooth_flag ? (Surface *)(new SmoothSurface) : (Surface *)(new FlatSurface);
+
     convert<>(vertices, face_group.triangles, surface->vertices, surface->triangles);
     convert<>(uv_coordinates, face_group.triangle_uv_coordinates, surface->uv_coordinates, surface->triangle_uv_coordinates);
 
