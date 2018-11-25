@@ -50,8 +50,8 @@ Surface* ObjLoader::face_group_to_surface(const FaceGroup& face_group) {
     } else {
         surface = new FlatSurface;
     }
-    convert<Vec>(vertices, face_group.triangles, surface->vertices, surface->triangles);
-    convert<std::pair<double, double>>(uv_coordinates, face_group.triangle_uv_coordinates, surface->uv_coordinates, surface->triangle_uv_coordinates);
+    convert<>(vertices, face_group.triangles, surface->vertices, surface->triangles);
+    convert<>(uv_coordinates, face_group.triangle_uv_coordinates, surface->uv_coordinates, surface->triangle_uv_coordinates);
 
     surface->material_ptr = new Material(*face_group.material_ptr);
 
