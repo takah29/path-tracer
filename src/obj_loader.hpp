@@ -38,6 +38,10 @@ class ObjLoader {
                  const std::vector<std::tuple<int, int, int>> &from_indices, 
                  std::vector<T> &to_vertices, 
                  std::vector<std::tuple<int, int, int>> &to_indices);
+    
+    void push_indices(std::vector<int> &from_indices, 
+                      std::vector<std::tuple<int, int, int>> &to_indices, 
+                      const std::size_t offset);
 
    public:
     ObjLoader();
