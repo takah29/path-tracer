@@ -25,6 +25,24 @@ void ObjLoader::all_smooth_flag(const bool smooth_flag) {
 
 std::unordered_map<std::string, Material> ObjLoader::get_materials() { return materials; }
 
+template<typename T>
+void ObjLoader::convert(const std::vector<T> &from_vertices, 
+                        const std::vector<std::tuple<int, int, int>> &from_indices, 
+                        std::vector<T> &to_vertices, 
+                        std::vector<std::tuple<int, int, int>> &to_indices) {
+    std::unordered_map<int, int> index_table;
+
+    for (const auto &[v1, v2, v3] : from_indices) {
+        for (auto vi : {v1, v2, v3}) {
+            if (index_table.find(vi) == index_table.end()) {
+                to_vertices.push_back(from_vertices[vi]);
+            }
+        }
+        to_indices.emplace_back(index_table[v1], index_table[v2], index_table[v3]);
+    }
+}
+
+
 Surface* ObjLoader::face_group_to_surface(const FaceGroup& face_group) {
     Surface* surface;
     if (face_group.smooth_flag) {
@@ -32,38 +50,8 @@ Surface* ObjLoader::face_group_to_surface(const FaceGroup& face_group) {
     } else {
         surface = new FlatSurface;
     }
-
-    const int n_elem = 3;
-
-    std::unordered_map<int, int> index_table;
-    std::array<int, n_elem> idxs, tmp_idxs;
-
-    for (size_t i = 0; i < face_group.triangles.size(); i++) {
-        std::tie(idxs[0], idxs[1], idxs[2]) = face_group.triangles[i];
-
-        for (int j = 0; j < n_elem; j++) {
-            auto p = index_table.emplace(idxs[j], index_table.size());
-            if (p.second) {
-                surface->vertices.push_back(vertices[idxs[j]]);
-            }
-            tmp_idxs[j] = index_table[idxs[j]];
-        }
-        surface->triangles.emplace_back(tmp_idxs[0], tmp_idxs[1], tmp_idxs[2]);
-    }
-
-    index_table.clear();
-    for (size_t i = 0; i < face_group.triangle_uv_coordinates.size(); i++) {
-        std::tie(idxs[0], idxs[1], idxs[2]) = face_group.triangle_uv_coordinates[i];
-
-        for (int j = 0; j < n_elem; j++) {
-            auto p = index_table.emplace(idxs[j], index_table.size());
-            if (p.second) {
-                surface->uv_coordinates.push_back(uv_coordinates[idxs[j]]);
-            }
-            tmp_idxs[j] = index_table[idxs[j]];
-        }
-        surface->triangle_uv_coordinates.emplace_back(tmp_idxs[0], tmp_idxs[1], tmp_idxs[2]);
-    }
+    convert<Vec>(vertices, face_group.triangles, surface->vertices, surface->triangles);
+    convert<std::pair<double, double>>(uv_coordinates, face_group.triangle_uv_coordinates, surface->uv_coordinates, surface->triangle_uv_coordinates);
 
     surface->material_ptr = new Material(*face_group.material_ptr);
 

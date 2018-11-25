@@ -33,6 +33,12 @@ class ObjLoader {
 
     Surface *face_group_to_surface(const FaceGroup &face_group);
 
+    template<typename T>
+    void convert(const std::vector<T> &from_vertices, 
+                 const std::vector<std::tuple<int, int, int>> &from_indices, 
+                 std::vector<T> &to_vertices, 
+                 std::vector<std::tuple<int, int, int>> &to_indices);
+
    public:
     ObjLoader();
     ObjLoader(const std::string file_path);
