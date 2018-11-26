@@ -25,7 +25,7 @@ class ObjLoader {
     std::vector<std::pair<double, double>> uv_coordinates;
     std::vector<Vec> normals;
     std::vector<FaceGroup> groups;
-    std::unordered_map<std::string, Material> materials;
+    std::unordered_map<std::string, Material*> materials;
 
     inline int to_index(const int number, const int n_vertices) {
         return number < 0 ? n_vertices + number : number - 1;
@@ -33,16 +33,25 @@ class ObjLoader {
 
     Surface *face_group_to_surface(const FaceGroup &face_group);
 
+    template<typename T>
+    void convert(const std::vector<T> &from_vertices, 
+                 const std::vector<std::tuple<int, int, int>> &from_indices, 
+                 std::vector<T> &to_vertices, 
+                 std::vector<std::tuple<int, int, int>> &to_indices);
+    
+    void push_indices(std::vector<int> &from_indices, 
+                      std::vector<std::tuple<int, int, int>> &to_indices, 
+                      const std::size_t offset);
+
+    void print_obj_data();
+    std::vector<Surface *> convert_to_surfaces();
+
    public:
     ObjLoader();
-    ObjLoader(const std::string file_path);
 
     void all_smooth_flag(const bool smooth_flag);
     bool load_objmtl_file(const std::string file_path);
-    bool load_obj_file(const std::string file_path);
-    std::unordered_map<std::string, Material> get_materials();
-    std::vector<Surface *> convert_to_surfaces();
-    void print_obj_data();
+    std::vector<Surface *> load_obj_file(const std::string file_path);
 };
 
 #endif
