@@ -14,15 +14,15 @@ FaceGroup::FaceGroup()
 ObjLoader::ObjLoader() : vertices(0), uv_coordinates(0), normals(0), groups(0), materials() {}
 
 void ObjLoader::all_smooth_flag(const bool smooth_flag) {
-    for (auto& group : groups) {
+    for (auto &group : groups) {
         group.smooth_flag = smooth_flag;
     }
 }
 
-template<typename T>
-void ObjLoader::convert(const std::vector<T> &from_vertices, 
-                        const std::vector<std::tuple<int, int, int>> &from_indices, 
-                        std::vector<T> &to_vertices, 
+template <typename T>
+void ObjLoader::convert(const std::vector<T> &from_vertices,
+                        const std::vector<std::tuple<int, int, int>> &from_indices,
+                        std::vector<T> &to_vertices,
                         std::vector<std::tuple<int, int, int>> &to_indices) {
     std::unordered_map<int, int> index_table;
 
@@ -37,12 +37,13 @@ void ObjLoader::convert(const std::vector<T> &from_vertices,
     }
 }
 
+Surface *ObjLoader::face_group_to_surface(const FaceGroup &face_group) {
+    Surface *const surface =
+        face_group.smooth_flag ? (Surface *)(new SmoothSurface) : (Surface *)(new FlatSurface);
 
-Surface* ObjLoader::face_group_to_surface(const FaceGroup& face_group) {
-    Surface* const surface = face_group.smooth_flag ? (Surface *)(new SmoothSurface) : (Surface *)(new FlatSurface);
-
-    convert<>(vertices, face_group.triangles, surface->vertices, surface->triangles);
-    convert<>(uv_coordinates, face_group.triangle_uv_coordinates, surface->uv_coordinates, surface->triangle_uv_coordinates);
+    convert(vertices, face_group.triangles, surface->vertices, surface->triangles);
+    convert(uv_coordinates, face_group.triangle_uv_coordinates, surface->uv_coordinates,
+            surface->triangle_uv_coordinates);
 
     surface->material_ptr = face_group.material_ptr;
 
@@ -53,11 +54,11 @@ Surface* ObjLoader::face_group_to_surface(const FaceGroup& face_group) {
     return surface;
 }
 
-std::vector<Surface*> ObjLoader::convert_to_surfaces() {
+std::vector<Surface *> ObjLoader::convert_to_surfaces() {
     printf("Converting to surface...\n");
-    std::vector<Surface*> surface_objects;
-    for (auto idx : groups) {
-        surface_objects.push_back(face_group_to_surface(idx));
+    std::vector<Surface *> surface_objects;
+    for (auto &group : groups) {
+        surface_objects.push_back(face_group_to_surface(group));
     }
     return surface_objects;
 }
@@ -75,7 +76,7 @@ bool ObjLoader::load_objmtl_file(const std::string file_path) {
     std::vector<std::string> sep_s;
     std::string material_name;
     double val0, val1, val2;
-    Texture* texture_ptr;
+    Texture *texture_ptr;
     while (!infile.eof()) {
         getline(infile, line);
         line = strip(line);
@@ -84,8 +85,8 @@ bool ObjLoader::load_objmtl_file(const std::string file_path) {
         sep_s = split_reg(line, " +");
         if (sep_s[0] == "newmtl") {
             material_name = sep_s[1];
-            materials.emplace(material_name,
-                              new Material(new ConstantTexture(GRAY), BLACK, ReflectionType::DIFFUSE));
+            materials.emplace(material_name, new Material(new ConstantTexture(GRAY), BLACK,
+                                                          ReflectionType::DIFFUSE));
         } else if (sep_s[0] == "Kd") {
             sscanf(line.data(), "Kd %lf %lf %lf", &val0, &val1, &val2);
             texture_ptr = new ConstantTexture(Color(val0, val1, val2));
@@ -93,7 +94,7 @@ bool ObjLoader::load_objmtl_file(const std::string file_path) {
         } else if (sep_s[0] == "map_Kd") {
             int pos = file_path.find_last_of("/") + 1;
             std::string image_path = file_path.substr(0, pos) + sep_s[1];
-            Image* image_ptr = new Image();
+            Image *image_ptr = new Image();
             load_rgb_image_file(image_path, *image_ptr);
             texture_ptr = new ImageTexture(image_ptr, nullptr);
             materials[material_name]->color_ptr = texture_ptr;
@@ -128,23 +129,23 @@ std::tuple<int, int, int> to_vertex_numbers(std::string s) {
     }
 }
 
-void ObjLoader::push_indices(std::vector<int> &from_indices, 
-                             std::vector<std::tuple<int, int, int>> &to_indices, 
+void ObjLoader::push_indices(std::vector<int> &from_indices,
+                             std::vector<std::tuple<int, int, int>> &to_indices,
                              const std::size_t offset) {
-
     const auto no_index = from_indices.size();
-    std::transform(from_indices.cbegin(), from_indices.cend(), from_indices.begin(), [&](auto v){ return to_index(v, offset); });
+    std::transform(from_indices.cbegin(), from_indices.cend(), from_indices.begin(),
+                   [&](auto v) { return to_index(v, offset); });
     for (std::size_t i = 0; i < no_index - 2; i++) {
         to_indices.emplace_back(from_indices[0], from_indices[i + 1], from_indices[i + 2]);
     }
 }
 
-std::vector<Surface*> ObjLoader::load_obj_file(const std::string file_path) {
+std::vector<Surface *> ObjLoader::load_obj_file(const std::string file_path) {
     print("Loading obj file...");
     std::ifstream infile(file_path);
     if (infile.fail()) {
         printf("Failed to open obj file.\n");
-        return std::vector<Surface*>();
+        return std::vector<Surface *>();
     }
 
     FaceGroup group;
@@ -174,7 +175,7 @@ std::vector<Surface*> ObjLoader::load_obj_file(const std::string file_path) {
             std::string mtl_path = file_path.substr(0, pos) + sep_s[1];
             if (!load_objmtl_file(mtl_path)) {
                 printf("mtl file not found.");
-                return std::vector<Surface*>();
+                return std::vector<Surface *>();
             }
         } else if (keyword == "o" || keyword == "g") {
             group = FaceGroup();
@@ -203,7 +204,7 @@ std::vector<Surface*> ObjLoader::load_obj_file(const std::string file_path) {
             for (std::size_t i = 0; i < no_index; i++) {
                 std::tie(v_idxs[i], vt_idxs[i], vn_idxs[i]) = to_vertex_numbers(sep_s[i + 1]);
             }
-            
+
             push_indices(v_idxs, group.triangles, vertices.size());
 
             if (vt_idxs[0] != 0) {
